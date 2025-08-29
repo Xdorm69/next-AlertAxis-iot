@@ -43,7 +43,7 @@ export default function TestimonialMarquee() {
     const marquee = marqueeRef.current;
     if (!marquee) return;
 
-    let totalWidth = marquee.scrollWidth;
+    const totalWidth = marquee.scrollWidth;
 
     gsap.to(marquee, {
       x: -totalWidth / 2,
