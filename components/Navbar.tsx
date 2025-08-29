@@ -3,8 +3,10 @@ import React from 'react'
 import { ModeToggle } from './ui/ModeToggle';
 import { MenuIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { Button } from './ui/button';
 
-const navlinks = ["shop", "service", "about"]
+const navlinks = ["dashboard", "about"]
 
 const Navbar = () => {
   return (
@@ -13,7 +15,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* LEFT  */}
           <Link href="/">
-            <WebTitle className='text-3xl' />
+            <WebTitle className="text-3xl" />
           </Link>
           {/* RIGHT  */}
 
@@ -26,12 +28,25 @@ const Navbar = () => {
           <div className="gap-4 items-center font-mono hidden md:flex">
             {navlinks.map((i, id) => {
               return (
-                <div className='opacity-50 hover:opacity-100 hover:text-primary transition' key={id}>
-                  <Link href={i}>{i.toUpperCase()}</Link>
+                <div
+                  className="opacity-50 hover:opacity-100 hover:text-primary transition"
+                  key={id}
+                >
+                  <Link href={`/${i}`}>{i.toUpperCase()}</Link>
                 </div>
               );
             })}
             <ModeToggle />
+            <div>
+              <SignedOut>
+                <SignInButton>
+                  <Button className='text-white font-semibold'>Log in</Button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <UserButton />
+              </SignedIn>
+            </div>
           </div>
         </div>
       </div>

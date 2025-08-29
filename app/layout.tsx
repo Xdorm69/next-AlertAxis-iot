@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/Providers/ThemeProvider";
-
+import { ClerkProvider } from "@clerk/nextjs";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "AlertAxis",
@@ -25,6 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <ClerkProvider>
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${inter.variable} ${jetBrainsMono.variable} antialiased font-sans`}
@@ -35,9 +38,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <main>
+            <Navbar/>
+            {children}
+            <Footer/>
+          </main>
         </ThemeProvider>
       </body>
     </html>
+    </ClerkProvider>
   );
 }
