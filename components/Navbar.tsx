@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import React from 'react'
 import { ModeToggle } from './ui/ModeToggle';
-import { MenuIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { Button } from './ui/button';
+import MobileNavbar from './MobileNavbar';
 
-const navlinks = ["dashboard", "about"]
+export const navlinks: string[] = ["dashboard", "about"]
 
 const Navbar = () => {
   return (
@@ -20,9 +20,7 @@ const Navbar = () => {
           {/* RIGHT  */}
 
           {/* HAMBURGER MENU */}
-          <div className="md:hidden">
-            <MenuIcon className="size-8 text-foreground " />
-          </div>
+          <MobileNavbar/>
 
           {/* FLEX MENU  */}
           <div className="gap-4 items-center font-mono hidden md:flex">
