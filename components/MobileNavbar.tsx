@@ -1,45 +1,63 @@
 "use client";
 
-import { useGSAP } from "@gsap/react";
 import { MenuIcon } from "lucide-react";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { navlinks } from "./Navbar";
 import Link from "next/link";
 
 const MobileNavbar = () => {
   const mobileNav = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
   const tl = useRef<gsap.core.Timeline | null>(null);
 
-  useGSAP(() => {
+  useLayoutEffect(() => {
+    if (!mobileNav.current) return;
+
+    // Initialize timeline
     tl.current = gsap.timeline({ paused: true });
 
-    // Slide in container
-    tl.current.from(mobileNav.current, {
+    // Set initial state of container
+    gsap.set(mobileNav.current, {
       x: "120%",
-      filter: "blur(20px)",
       opacity: 0,
-      duration: 0.5,
-      ease: "power2.out",
+      pointerEvents: "none",
     });
 
-    // Fade in + stagger links
-    tl.current.from(
-      ".nav-letters",
+    // Set initial state of letters
+    gsap.set(mobileNav.current.querySelectorAll(".nav-letters"), {
+      opacity: 0,
+      y: 10,
+      filter: "blur(5px)",
+    });
+
+    // Animate container
+    tl.current.to(mobileNav.current, {
+      x: "0%",
+      opacity: 1,
+      filter: "blur(0px)",
+      duration: 0.5,
+      ease: "power2.out",
+      pointerEvents: "auto",
+    });
+
+    // Animate letters
+    tl.current.to(
+      mobileNav.current.querySelectorAll(".nav-letters"),
       {
-        opacity: 0,
-        y: 10,
-        filter: "blur(5px)",
+        opacity: 1,
+        y: 0,
+        filter: "blur(0px)",
         duration: 0.4,
         ease: "power2.out",
         stagger: 0.06,
       },
-      "-=0.2" // overlap a bit with the container animation
+      "-=0.3"
     );
   }, []);
 
-  useEffect(() => {
+  // Play/reverse timeline on toggle
+  useLayoutEffect(() => {
     if (open) {
       tl.current?.play();
     } else {
@@ -55,7 +73,7 @@ const MobileNavbar = () => {
 
       <div
         ref={mobileNav}
-        className="pb-10 pt-4 bg-card px-4 z-10 absolute right-4 top-16 rounded-xl shadow-lg"
+        className="pb-10 pt-4 bg-card px-4 z-10 absolute right-4 top-16 rounded-xl shadow-lg opacity-0"
       >
         {navlinks.map((i, id) => (
           <div

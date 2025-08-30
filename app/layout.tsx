@@ -12,14 +12,19 @@ export const metadata: Metadata = {
 };
 
 export const inter = Inter({
-  variable: "--font-inter", 
+  variable: "--font-inter",
   weight: ["100", "400", "900"],
-})
+  subsets: ["latin"], // explicitly specify subsets
+  display: "swap",
+});
 
+// JetBrains Mono
 export const jetBrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono", 
+  variable: "--font-jetbrains-mono",
   weight: ["100", "400", "800"],
-})
+  subsets: ["latin"], // explicitly specify subsets
+  display: "swap",
+});
 
 export default function RootLayout({
   children,

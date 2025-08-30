@@ -1,5 +1,3 @@
-import Footer from "@/components/Footer";
-import Navbar from "@/components/Navbar";
 import HeroPage from "@/components/Pages/HeroPage";
 import HowItWorksFlow from "@/components/Pages/How";
 import PricingPage from "@/components/Pages/PricingPage";
