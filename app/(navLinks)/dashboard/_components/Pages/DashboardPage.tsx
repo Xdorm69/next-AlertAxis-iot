@@ -10,11 +10,11 @@ const DashboardPage = async () => {
   const user = {role: "USER", name: clerkUser?.fullName || "GUEST"};
 
   return (
-    <section className="min-h-screen mt-18">
+    <section className="my-18 min-h-[60vh]">
       <div className="container mx-auto py-4 px-4 xl:w-7xl h-full">
         <div className="flex items-center justify-between">
-          <div className="text-4xl font-bold flex gap-2">
-            <h1>Hello! {user.name}</h1> <AnimatedHand />
+          <div className="text-2xl md:text-2xl lg:text-4xl font-bold flex gap-2">
+            <h1>Hello! {user.name.split(" ").slice(0, 2).join(" ")}</h1> <AnimatedHand />
           </div>
           {/* NEED TO BE GENERATED FROM DB  */}
           <div
@@ -29,7 +29,7 @@ const DashboardPage = async () => {
           </div>
         </div>
 
-        <p className="text-muted-foreground font-mono mt-2">
+        <p className="text-muted-foreground font-mono mt-2 text-sm w-3/4 md:text-md">
           A dashboard presents a summary of system metrics and status.
         </p>
 

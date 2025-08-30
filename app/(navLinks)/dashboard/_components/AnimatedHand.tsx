@@ -19,7 +19,7 @@ const AnimatedHand = () => {
       }
     );
   }, []);
-  return <div ref={hand}>👋</div>;
+  return <div className="hidden md:block" ref={hand}>👋</div>;
 };
 
 export default AnimatedHand;
