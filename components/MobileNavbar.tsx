@@ -5,13 +5,14 @@ import React, { useRef, useState, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { navlinks } from "./Navbar";
 import Link from "next/link";
+import { useGSAP } from "@gsap/react";
 
 const MobileNavbar = () => {
   const mobileNav = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const tl = useRef<gsap.core.Timeline | null>(null);
 
-  useLayoutEffect(() => {
+  useGSAP(() => {
     if (!mobileNav.current) return;
 
     // Initialize timeline

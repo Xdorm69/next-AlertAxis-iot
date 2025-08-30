@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { Button } from './ui/button';
 import MobileNavbar from './MobileNavbar';
+import AnimatedNavLink from './AnimatedNavLink';
 
 export const navlinks: string[] = ["dashboard", "about"]
 
@@ -27,10 +28,12 @@ const Navbar = () => {
             {navlinks.map((i, id) => {
               return (
                 <div
-                  className="opacity-50 hover:opacity-100 hover:text-primary transition"
+                  className="opacity-50 hover:opacity-100 hover:text-primary transition uppercase"
                   key={id}
                 >
-                  <Link href={`/${i}`}>{i.toUpperCase()}</Link>
+                  <Link href={`/${i}`}>
+                    <AnimatedNavLink word={i} />
+                  </Link>
                 </div>
               );
             })}

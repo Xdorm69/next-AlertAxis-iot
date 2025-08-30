@@ -5,6 +5,8 @@ import { ThemeProvider } from "@/components/Providers/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { Toaster } from "sonner";
+import { CheckCircle, XCircle, Info, AlertTriangle } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "AlertAxis",
@@ -33,24 +35,37 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} ${jetBrainsMono.variable} antialiased font-sans`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={`${inter.variable} ${jetBrainsMono.variable} antialiased font-sans`}
         >
-          <main>
-            <Navbar/>
-            {children}
-            <Footer/>
-          </main>
-        </ThemeProvider>
-      </body>
-    </html>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <main>
+              <Navbar />
+              {children}
+              <Footer />
+              <Toaster
+                richColors
+                theme="system"
+                duration={5000}
+                closeButton
+                icons={{
+                  success: <CheckCircle />,
+                  error: <XCircle />,
+                  info: <Info />,
+                  warning: <AlertTriangle />,
+                }}
+                position="bottom-right"
+              />
+            </main>
+          </ThemeProvider>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

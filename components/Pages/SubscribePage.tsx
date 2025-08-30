@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function SubscribePage() {
   const [email, setEmail] = useState("");
@@ -11,6 +12,7 @@ export default function SubscribePage() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Subscribed:", email);
+    toast.success("You have subscribed to AlertAxis Blog!");
     setEmail("");
   };
 
