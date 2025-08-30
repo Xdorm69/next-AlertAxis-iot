@@ -9,7 +9,7 @@ import React from "react";
 const page = () => {
   return (
     <>
-      <div className="bg-primary/40 blur-3xl rounded-full size-[20vw] absolute right-0" />
+      <div className="bg-primary/80 md:bg-primary/40 blur-3xl rounded-full size-[20vw] absolute right-5 md:right-0" />
       <div className="z-10">
         <HeroPage />
         <ServicesPage />
