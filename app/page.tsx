@@ -9,12 +9,15 @@ import React from "react";
 const page = () => {
   return (
     <>
-      <HeroPage />
-      <ServicesPage />
-      <HowItWorksFlow />
-      <PricingPage />
-      <TestimonialMarquee />
-      <SubscribePage />
+      <div className="bg-primary/40 blur-3xl rounded-full size-[20vw] absolute right-0" />
+      <div className="z-10">
+        <HeroPage />
+        <ServicesPage />
+        <HowItWorksFlow />
+        <PricingPage />
+        <TestimonialMarquee />
+        <SubscribePage />
+      </div>
     </>
   );
 };

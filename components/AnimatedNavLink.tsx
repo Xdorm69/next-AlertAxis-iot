@@ -84,7 +84,7 @@ const AnimatedNavLink = ({ word }: { word: string }) => {
       {/* The top word that will animate out */}
       <div className="flex absolute nav-text-top">
         {word.split("").map((letter, idx) => (
-          <span key={`top-${idx}`} className="nav-letters block">
+          <span key={`top-${idx}`} className="nav-letters block uppercase">
             {letter}
           </span>
         ))}
@@ -93,7 +93,7 @@ const AnimatedNavLink = ({ word }: { word: string }) => {
       {/* The bottom word that will animate in */}
       <div className="flex nav-text-bottom">
         {word.split("").map((letter, idx) => (
-          <span key={`bottom-${idx}`} className="nav-letters block">
+          <span key={`bottom-${idx}`} className="nav-letters block uppercase">
             {letter}
           </span>
         ))}

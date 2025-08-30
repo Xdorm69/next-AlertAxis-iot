@@ -45,7 +45,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <main>
+            <main className="bg-background">
               <Navbar />
               {children}
               <Footer />
