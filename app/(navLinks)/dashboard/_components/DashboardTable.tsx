@@ -28,17 +28,17 @@ import { AccessLogWithUser } from "@/app/api/dashboard/route";
 import { Button } from "@/components/ui/button";
 import { DownloadCSV } from "../fetch/DownloadCSV";
 
-const DashBoardTableWrapper = () => {
+const DashBoardTableWrapper = ({user}: {user: {role: string, name: string}}) => {
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      <DashboardTable />
+      <DashboardTable user={user} />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 };
 
-const DashboardTable = () => {
+const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
 
@@ -65,16 +65,18 @@ const DashboardTable = () => {
             </SelectContent>
           </Select>
 
-          <Select onValueChange={setRoleFilter} value={roleFilter}>
-            <SelectTrigger className="w-32">
-              <SelectValue placeholder="Role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All</SelectItem>
-              <SelectItem value="ADMIN">Admin</SelectItem>
-              <SelectItem value="USER">User</SelectItem>
-            </SelectContent>
-          </Select>
+          {user.role === "ADMIN" && (
+            <Select onValueChange={setRoleFilter} value={roleFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All</SelectItem>
+                <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectItem value="USER">User</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         <Button
@@ -123,7 +125,9 @@ const DashboardTable = () => {
               data?.map((log: AccessLogWithUser) => (
                 <TableRow key={log.id}>
                   <TableCell>{log.user.name || "N/A"}</TableCell>
-                  <TableCell className="text-muted-foreground">{log.user.email}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {log.user.email}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant={
@@ -133,7 +137,9 @@ const DashboardTable = () => {
                       {log.user.role}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{log.rfid.tagId}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {log.rfid.tagId}
+                  </TableCell>
                   <TableCell>
                     <Badge
                       variant={

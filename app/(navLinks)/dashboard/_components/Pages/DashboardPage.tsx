@@ -34,7 +34,7 @@ const DashboardPage = async () => {
         </p>
 
         <div className="mt-12">
-          <DashboardTable />
+          <DashboardTable user={user} />
         </div>
       </div>
     </section>
