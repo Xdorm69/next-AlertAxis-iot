@@ -6,8 +6,8 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
 import { Button } from './ui/button';
 import MobileNavbar from './MobileNavbar';
 import AnimatedNavLink from './AnimatedNavLink';
-
-export const navlinks: string[] = ["dashboard", "about"]
+import { navlinks } from '@/constants/nav';
+import { WebTitle } from '@/constants/WebTitle';
 
 const Navbar = () => {
   return (
@@ -56,20 +56,3 @@ const Navbar = () => {
 }
 
 export default Navbar
-
-export const WebTitle = ({
-  className,
-  glow,
-}: {
-  className?: string;
-  glow?: boolean;
-}) => {
-  return (
-    <div className={cn("font-semibold font-sans", className)}>
-      <span className={cn("text-primary", glow && "text-shadow-glow text-white/80")}>
-        Alert
-      </span>
-      <span>Axis</span>
-    </div>
-  );
-};

@@ -1,7 +1,10 @@
 "use client";
 
 import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
-import { WebTitle } from "./Navbar";
+import { WebTitle } from "@/constants/WebTitle";
+import Link from "next/link";
+import { FooterLinks } from "@/constants/footer";
+
 
 export default function Footer() {
   return (
@@ -20,31 +23,13 @@ export default function Footer() {
         <div>
           <h4 className="text-base font-semibold mb-3">Quick Links</h4>
           <ul className="space-y-2">
-            <li>
-              <a href="#services" className="hover:text-primary">
-                Services
-              </a>
-            </li>
-            <li>
-              <a href="#features" className="hover:text-primary">
-                Features
-              </a>
-            </li>
-            <li>
-              <a href="#pricing" className="hover:text-primary">
-                Pricing
-              </a>
-            </li>
-            <li>
-              <a href="#testimonials" className="hover:text-primary">
-                Testimonials
-              </a>
-            </li>
-            <li>
-              <a href="#contact" className="hover:text-primary">
-                Contact
-              </a>
-            </li>
+            {FooterLinks.map((link, index) => (
+              <li key={index}>
+                <Link href={`#${link}`} className="hover:text-primary">
+                  {link}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 

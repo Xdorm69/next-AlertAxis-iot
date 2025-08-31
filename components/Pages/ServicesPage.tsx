@@ -7,40 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import rfid from "@/public/services/rfid.json";
-import real from "@/public/services/real2.json";
-import db from "@/public/services/db2.json";
 import LottieAnimPlayer from "../LottieAnimPlayer";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/all";
+import { CardData, ServiceCardProps } from "@/constants/services";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type ServiceCardProps = {
-  title: string;
-  desc: string;
-  animation: object;
-  className?: string;
-};
-
-const CardData: ServiceCardProps[] = [
-  {
-    title: "RFID Access Control",
-    desc: "Secure home entry with RFID technology",
-    animation: rfid,
-  },
-  {
-    title: "Real Time Monitoring",
-    desc: "View logs instantly",
-    animation: real,
-  },
-  {
-    title: "Secure Database",
-    desc: "Only the last 30 transactions stored for safety.",
-    animation: db,
-  },
-];
 
 const ServicesPage = () => {
   const container = useRef<HTMLDivElement>(null);
@@ -88,7 +62,7 @@ useGSAP(() => {
           ref={container}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
         >
-          {CardData.map((i, id) => {
+          {CardData.map((i: ServiceCardProps, id) => {
             return (
               <ServiceCard
                 key={id}

@@ -3,9 +3,11 @@
 import { MenuIcon } from "lucide-react";
 import React, { useRef, useState, useLayoutEffect } from "react";
 import gsap from "gsap";
-import { navlinks } from "./Navbar";
 import Link from "next/link";
 import { useGSAP } from "@gsap/react";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import { Button } from "./ui/button";
+import { navlinks } from "@/constants/nav";
 
 const MobileNavbar = () => {
   const mobileNav = useRef<HTMLDivElement>(null);
@@ -67,10 +69,18 @@ const MobileNavbar = () => {
   }, [open]);
 
   return (
-    <div className="md:hidden">
-      <button onClick={() => setOpen((prev) => !prev)}>
+    <div className="md:hidden flex items-center">
+      <button className="mr-2" onClick={() => setOpen((prev) => !prev)}>
         <MenuIcon className="size-8 text-foreground" />
       </button>
+      <SignedOut>
+        <SignInButton>
+          <Button className="text-white font-semibold">Log in</Button>
+        </SignInButton>
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
 
       <div
         ref={mobileNav}

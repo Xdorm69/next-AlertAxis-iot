@@ -3,48 +3,8 @@
 import { CheckCircle2 } from "lucide-react";
 import { Button } from "../ui/button";
 import Link from "next/link";
-
-const plans = [
-  {
-    name: "Starter",
-    price: "₹499/month",
-    description: "Perfect for home users & small-scale IoT projects.",
-    features: [
-      "1 RFID Reader + ESP8266 Integration",
-      "Up to 5 User RFID Cards",
-      "Basic Access Logs (last 30 transactions)",
-      "Email Support",
-    ],
-    highlighted: false,
-  },
-  {
-    name: "Pro",
-    price: "₹999/month",
-    description: "Best for startups, shops, and small businesses.",
-    features: [
-      "3 RFID Readers + ESP8266 Integration",
-      "Up to 25 User RFID Cards",
-      "Real-time Access Logs & Dashboard",
-      "Admin Card Reissue Functionality",
-      "Priority Email & Chat Support",
-    ],
-    highlighted: true,
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    description: "Advanced solution for large-scale offices & industries.",
-    features: [
-      "Unlimited RFID Readers",
-      "Unlimited User RFID Cards",
-      "Advanced Analytics & Monitoring",
-      "Role-Based Access Control",
-      "Dedicated Account Manager",
-      "24/7 Support",
-    ],
-    highlighted: false,
-  },
-];
+import { PricingPlans, PricingPlansProps } from "@/constants/pricing";
+import ShinyText from "../ShinyText";
 
 export default function PricingPage() {
   return (
@@ -57,7 +17,7 @@ export default function PricingPage() {
       </p>
 
       <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto px-6">
-        {plans.map((plan) => (
+        {PricingPlans.map((plan: PricingPlansProps) => (
           <div
             key={plan.name}
             className={`rounded-2xl shadow-md p-8 flex flex-col border ${
@@ -66,7 +26,20 @@ export default function PricingPage() {
                 : "bg-card border-card"
             }`}
           >
-            <h3 className="text-2xl font-mono font-bold mb-2">{plan.name}</h3>
+            <div className="text-2xl font-mono font-bold mb-2">
+              {plan.name === "Pro" ? (
+                <div className="rounded-full bg-card px-2 w-fit">
+                  <ShinyText
+                    text="Pro"
+                    disabled={false}
+                    speed={3}
+                    className="text-white"
+                  />
+                </div>
+              ) : (
+                <h3>{plan.name}</h3>
+              )}
+            </div>
             <p className="text-3xl font-bold text-primary mb-4">{plan.price}</p>
             <p className="text-muted-foreground/60 mb-6 font-mono">
               {plan.description}

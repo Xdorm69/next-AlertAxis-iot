@@ -55,7 +55,7 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
       <div className="flex items-center justify-between">
         <div className="flex gap-4">
           <Select onValueChange={setStatusFilter} value={statusFilter}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-20 md:w-32">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
@@ -67,7 +67,7 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
 
           {user.role === "ADMIN" && (
             <Select onValueChange={setRoleFilter} value={roleFilter}>
-              <SelectTrigger className="w-32">
+              <SelectTrigger className="w-20 md:w-32">
                 <SelectValue placeholder="Role" />
               </SelectTrigger>
               <SelectContent>

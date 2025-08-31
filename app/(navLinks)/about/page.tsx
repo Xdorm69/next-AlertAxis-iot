@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { authors, AuthorsType } from "@/constants/authors";
 import { Instagram } from "lucide-react";
 
 export default function AboutPage() {
@@ -45,7 +46,7 @@ export default function AboutPage() {
       <section className="py-12 text-center">
         <h2 className="text-3xl font-bold mb-6">Authors</h2>
         <div className="flex flex-wrap justify-center gap-6">
-          {authors.map((author) => (
+          {authors.map((author: AuthorsType) => (
             <div key={author.name}>
               <a
                 href={author.instagram}
@@ -67,8 +68,3 @@ export default function AboutPage() {
   );
 }
 
-const authors = [
-  { name: "Amitoj Singh", role: "Web Engineer", instagram: "https://instagram.com/amitoj_.15" },
-  { name: "Jodhbir Singh", role: "Mechanical Engineer", instagram: "https://instagram.com/_jodhbir.singh" },
-  { name: "Shivam Sharma", role: "Report Analyst", instagram: "https://instagram.com/shivam_shar0091" },
-];

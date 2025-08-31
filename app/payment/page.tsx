@@ -5,45 +5,45 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const plans = [
-  {
-    name: "Starter",
-    price: "₹499/month",
-    features: [
-      "1 RFID Reader + ESP8266 Integration",
-      "Up to 5 User RFID Cards",
-      "Basic Access Logs (last 30 transactions)",
-      "Email Support",
-    ],
-  },
-  {
-    name: "Pro",
-    price: "₹999/month",
-    features: [
-      "3 RFID Readers + ESP8266 Integration",
-      "Up to 25 User RFID Cards",
-      "Real-time Access Logs & Dashboard",
-      "Admin Card Reissue Functionality",
-      "Priority Email & Chat Support",
-    ],
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    features: [
-      "Unlimited RFID Readers",
-      "Unlimited User RFID Cards",
-      "Advanced Analytics & Monitoring",
-      "Role-Based Access Control",
-      "Dedicated Account Manager",
-      "24/7 Support",
-    ],
-  },
-];
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { PricingPlans, PricingPlansProps } from "@/constants/pricing";
 
 export default function CheckoutPage() {
-  const [selectedPlan, setSelectedPlan] = useState(plans[0]);
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlansProps>(
+    PricingPlans[0]
+  );
+  const router = useRouter();
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // ✅ keep a reference to the form element
+    const formEl = e.currentTarget;
+
+    const formData = new FormData(formEl);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const card = formData.get("card") as string;
+
+    toast.loading("Processing your payment...", { id: "pay" });
+
+    const t = setTimeout(() => {
+      // ✅ reset using saved reference
+      formEl.reset();
+
+      toast.success(
+        selectedPlan.name === "Enterprise"
+          ? "Our sales team will reach out to you soon!"
+          : "Payment successful!",
+        { id: "pay" }
+      );
+      router.push("/dashboard");
+    }, 2000);
+
+    // cleanup timeout in case of navigation/unmount
+    window.addEventListener("beforeunload", () => clearTimeout(t));
+  };
 
   return (
     <div className="min-h-screen bg-black my-18 text-white flex items-center justify-center px-6 py-12">
@@ -52,7 +52,7 @@ export default function CheckoutPage() {
         <div>
           <h1 className="text-3xl font-bold mb-6">Choose Your Plan</h1>
           <div className="space-y-4">
-            {plans.map((plan) => (
+            {PricingPlans.map((plan: PricingPlansProps) => (
               <Card
                 key={plan.name}
                 className={`cursor-pointer transition-all ${
@@ -91,33 +91,48 @@ export default function CheckoutPage() {
               {selectedPlan.name}
             </span>
           </p>
-          <form className="space-y-4">
+          <form
+            onSubmit={(e: React.FormEvent<HTMLFormElement>) => handleSubmit(e)}
+            className="space-y-4"
+          >
             <div>
-              <Label htmlFor="name" className="mb-2">Full Name</Label>
+              <Label htmlFor="name" className="mb-2">
+                Full Name
+              </Label>
               <Input
                 id="name"
                 placeholder="John Doe"
+                required
                 className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
             <div>
-              <Label htmlFor="email" className="mb-2">Email</Label>
+              <Label htmlFor="email" className="mb-2">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
+                required
                 placeholder="you@example.com"
                 className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
             <div>
-              <Label htmlFor="card" className="mb-2">Card Details</Label>
+              <Label htmlFor="card" className="mb-2">
+                Card Details
+              </Label>
               <Input
                 id="card"
+                required
                 placeholder="1234 5678 9012 3456"
                 className="bg-gray-800 border-gray-700 text-white"
               />
             </div>
-            <Button className="w-full bg-yellow-500 text-white font-semibold hover:bg-yellow-400">
+            <Button
+              type="submit"
+              className="w-full bg-yellow-500 text-white font-semibold hover:bg-yellow-400"
+            >
               {selectedPlan.name === "Enterprise"
                 ? "Contact Sales"
                 : "Confirm & Pay"}

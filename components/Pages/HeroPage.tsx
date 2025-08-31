@@ -1,8 +1,9 @@
 import React from "react";
-import { WebTitle } from "../Navbar";
+
 import { Button } from "../ui/button";
 import Link from "next/link";
 import HeroImage from "../HeroImage";
+import { WebTitle } from "@/constants/WebTitle";
 
 const HeroPage = () => {
   return (
