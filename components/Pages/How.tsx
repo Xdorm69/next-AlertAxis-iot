@@ -28,7 +28,7 @@ export default function HowItWorksFlow() {
 
             {/* Title + Desc */}
             <h3 className="mt-4 font-semibold text-primary">{step.title}</h3>
-            <p className="text-sm text-muted-foreground">{step.desc}</p>
+            <p className="text-sm text-muted-foreground font-mono">{step.desc}</p>
           </div>
         ))}
       </div>
