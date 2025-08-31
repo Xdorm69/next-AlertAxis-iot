@@ -46,11 +46,11 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black my-18 text-white flex items-center justify-center px-6 py-12">
-      <div className="max-w-4xl w-full grid md:grid-cols-2 gap-8">
+    <div className="min-h-screen my-18 text-white flex items-center justify-center px-6 py-12">
+      <div className="max-w-4xl w-full h-full grid md:grid-cols-2 gap-8">
         {/* Plans */}
         <div>
-          <h1 className="text-3xl font-bold mb-6">Choose Your Plan</h1>
+          <h1 className="text-3xl font-bold mb-6 text-foreground">Choose Your Plan</h1>
           <div className="space-y-4">
             {PricingPlans.map((plan: PricingPlansProps) => (
               <Card
@@ -71,7 +71,7 @@ export default function CheckoutPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <ul className="list-disc list-inside text-gray-300 space-y-1">
+                  <ul className="list-disc list-inside text-muted-foreground space-y-1">
                     {plan.features.map((f, i) => (
                       <li key={i}>{f}</li>
                     ))}
@@ -83,9 +83,9 @@ export default function CheckoutPage() {
         </div>
 
         {/* Checkout Form */}
-        <div className="bg-gray-900 p-6 rounded-2xl shadow-lg">
+        <div className="bg-gray-900 h-full p-6 rounded-2xl shadow-lg">
           <h2 className="text-2xl font-bold mb-4">Checkout</h2>
-          <p className="text-gray-400 mb-6">
+          <p className="text-muted-foreground mb-6">
             Selected Plan:{" "}
             <span className="text-yellow-400 font-semibold font-mono">
               {selectedPlan.name}
