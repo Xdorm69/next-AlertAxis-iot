@@ -23,7 +23,7 @@ export default function DocsPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2, duration: 0.6 }}
-        className="text-lg text-muted-foreground text-center mb-12 max-w-3xl"
+        className="text-lg text-muted-foreground font-mono text-center mb-12 max-w-3xl"
       >
         Welcome to AlertAxis! 🚀 This guide will help you understand how the app
         works and walk you through the setup process to connect your device.
