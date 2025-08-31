@@ -53,7 +53,7 @@ const MobileNavbar = () => {
         filter: "blur(0px)",
         duration: 0.4,
         ease: "power2.out",
-        stagger: 0.06,
+        stagger: 0.04,
       },
       "-=0.3"
     );

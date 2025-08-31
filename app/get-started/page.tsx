@@ -8,7 +8,7 @@ import { WebTitle } from "@/constants/WebTitle";
 
 export default function GetStartedPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted px-6 py-12">
+    <div className="min-h-screen my-20 flex flex-col items-center justify-center px-6 py-12">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
