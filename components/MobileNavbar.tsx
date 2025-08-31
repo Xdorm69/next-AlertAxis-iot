@@ -1,13 +1,14 @@
 "use client";
 
 import { MenuIcon } from "lucide-react";
-import React, { useRef, useState, useLayoutEffect } from "react";
+import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 import gsap from "gsap";
 import Link from "next/link";
 import { useGSAP } from "@gsap/react";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { navlinks } from "@/constants/nav";
+import { ClerkBtns } from "./ClerkBtns";
 
 const MobileNavbar = () => {
   const mobileNav = useRef<HTMLDivElement>(null);
@@ -59,7 +60,27 @@ const MobileNavbar = () => {
     );
   }, []);
 
-  // Play/reverse timeline on toggle
+useEffect(() => {
+  const handleClickOutside = (e: MouseEvent) => {
+    if (!mobileNav.current) return;
+
+    // If click is outside the nav AND not on the toggle button
+    if (
+      open &&
+      !mobileNav.current.contains(e.target as Node) &&
+      !(e.target as HTMLElement).closest("button") // menu button
+    ) {
+      setOpen(false);
+    }
+  };
+
+  window.addEventListener("click", handleClickOutside);
+
+  return () => {
+    window.removeEventListener("click", handleClickOutside);
+  };
+}, [open]);
+
   useLayoutEffect(() => {
     if (open) {
       tl.current?.play();
@@ -73,14 +94,7 @@ const MobileNavbar = () => {
       <button className="mr-2" onClick={() => setOpen((prev) => !prev)}>
         <MenuIcon className="size-8 text-foreground" />
       </button>
-      <SignedOut>
-        <SignInButton>
-          <Button className="text-white font-semibold">Log in</Button>
-        </SignInButton>
-      </SignedOut>
-      <SignedIn>
-        <UserButton />
-      </SignedIn>
+      <ClerkBtns/>
 
       <div
         ref={mobileNav}

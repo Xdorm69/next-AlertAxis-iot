@@ -8,6 +8,7 @@ import MobileNavbar from './MobileNavbar';
 import AnimatedNavLink from './AnimatedNavLink';
 import { navlinks } from '@/constants/nav';
 import { WebTitle } from '@/constants/WebTitle';
+import { ClerkBtns } from './ClerkBtns';
 
 const Navbar = () => {
   return (
@@ -39,14 +40,7 @@ const Navbar = () => {
             })}
             <ModeToggle />
             <div>
-              <SignedOut>
-                <SignInButton>
-                  <Button className='text-white font-semibold'>Log in</Button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <UserButton />
-              </SignedIn>
+              <ClerkBtns/>
             </div>
           </div>
         </div>
