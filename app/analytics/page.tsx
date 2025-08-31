@@ -25,7 +25,7 @@ export default function AnalyticsComingSoon() {
         transition={{ delay: 0.2, duration: 0.6 }}
         className="text-muted-foreground text-lg max-w-xl mb-8 font-mono"
       >
-        We’re building advanced real-time analytics with anomaly detection,
+        We&apos;re building advanced real-time analytics with anomaly detection,
         insights, and reporting — so you can make smarter security decisions.
         Stay tuned for updates!
       </motion.p>

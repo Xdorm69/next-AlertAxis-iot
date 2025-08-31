@@ -19,7 +19,7 @@ export default function GetStartedPage() {
         <h1 className="text-4xl flex flex-wrap gap-2 justify-center font-bold mb-4">
           Welcome to <WebTitle/>
         </h1>
-        <p className="text-muted-foreground text-lg mb-8">
+        <p className="text-muted-foreground text-lg mb-8 font-mono">
           Smart IoT solutions for{" "}
           <span className="font-semibold">security</span> and{" "}
           <span className="font-semibold">real-time analytics</span>. Monitor,
@@ -31,7 +31,7 @@ export default function GetStartedPage() {
           <Card className="rounded-2xl shadow-lg hover:shadow-2xl transition">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-xl font-semibold">🔒 Security Monitoring</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-mono">
                 Connect RFID, sensors, and cameras to detect threats instantly
                 and manage access logs.
               </p>
@@ -44,7 +44,7 @@ export default function GetStartedPage() {
           <Card className="rounded-2xl shadow-lg hover:shadow-2xl transition">
             <CardContent className="p-6 space-y-4">
               <h2 className="text-xl font-semibold">📊 Analytics & Insights</h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground font-mono">
                 Get actionable insights with real-time analytics, reports, and
                 anomaly detection.
               </p>

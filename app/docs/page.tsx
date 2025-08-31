@@ -39,7 +39,7 @@ export default function DocsPage() {
         <Card className="rounded-2xl shadow-lg">
           <CardContent className="p-8">
             <h2 className="text-2xl font-semibold mb-4">How the App Works</h2>
-            <p className="text-muted-foreground leading-relaxed">
+            <p className="text-muted-foreground leading-relaxed font-mono">
               AlertAxis connects your IoT security device to the cloud, allowing
               you to monitor real-time data, receive instant alerts, and analyze
               security reports from your phone. The app uses end-to-end
@@ -69,7 +69,7 @@ export default function DocsPage() {
                     <CheckCircle className="w-6 h-6 text-primary mt-1" />
                     <div>
                       <h3 className="text-lg font-semibold">{step.title}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-muted-foreground font-mono">
                         {step.description}
                       </p>
                     </div>
