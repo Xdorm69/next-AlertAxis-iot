@@ -1,6 +1,8 @@
 "use client";
 
 import { CheckCircle2 } from "lucide-react";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
 const plans = [
   {
@@ -47,7 +49,9 @@ const plans = [
 export default function PricingPage() {
   return (
     <section className="w-full my-42 bg-background">
-      <h2 className="text-4xl font-bold text-center mb-6 text-accent-foreground">💳 Pricing Plans</h2>
+      <h2 className="text-4xl font-bold text-center mb-6 text-accent-foreground">
+        💳 Pricing Plans
+      </h2>
       <p className="text-center text-muted-foreground max-w-2xl mx-auto mb-12 font-mono">
         Choose the right plan for your RFID-based home & business security.
       </p>
@@ -62,11 +66,11 @@ export default function PricingPage() {
                 : "bg-card border-card"
             }`}
           >
-            <h3 className="text-2xl font-semibold mb-2">{plan.name}</h3>
-            <p className="text-3xl font-bold text-primary mb-4">
-              {plan.price}
+            <h3 className="text-2xl font-mono font-bold mb-2">{plan.name}</h3>
+            <p className="text-3xl font-bold text-primary mb-4">{plan.price}</p>
+            <p className="text-muted-foreground/60 mb-6 font-mono">
+              {plan.description}
             </p>
-            <p className="text-muted-foreground/60 mb-6 font-mono">{plan.description}</p>
 
             <ul className="space-y-3 flex-1">
               {plan.features.map((feature, idx) => (
@@ -80,15 +84,17 @@ export default function PricingPage() {
               ))}
             </ul>
 
-            <button
-              className={`mt-8 w-full py-3 rounded-xl font-semibold transition ${
-                plan.highlighted
-                  ? "bg-primary text-white hover:bg-primary/80"
-                  : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-            >
-              {plan.name === "Enterprise" ? "Contact Sales" : "Get Started"}
-            </button>
+            <Link href="/payment">
+              <Button
+                className={`mt-8 w-full py-3 cursor-pointer rounded-xl font-semibold transition ${
+                  plan.highlighted
+                    ? "bg-primary text-white hover:bg-primary/80"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                }`}
+              >
+                {plan.name === "Enterprise" ? "Contact Sales" : "Get Started"}
+              </Button>
+            </Link>
           </div>
         ))}
       </div>

@@ -44,30 +44,37 @@ const CardData: ServiceCardProps[] = [
 
 const ServicesPage = () => {
   const container = useRef<HTMLDivElement>(null);
-  useGSAP(() => {
-    if (!container.current) return;
-    gsap.fromTo(
-      container.current.querySelectorAll(".service-card"),
-      { y: 40, filter: "blur(5px)", opacity: 0 },
-      {
-        y: 0,
-        filter: "blur(0px)",
-        opacity: 1,
-        stagger: 0.5,
-        duration: 0.5,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: container.current,
-          start: "top center",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      }
-    );
-  }, []);
+useGSAP(() => {
+  if (!container.current) return;
+
+  const mobile = window.innerHeight > window.innerWidth;
+
+  gsap.fromTo(
+    container.current.querySelectorAll(".service-card"),
+    {
+      ...(mobile ? { x: 40 } : { y: 40 }),
+      filter: "blur(5px)",
+      opacity: 0,
+    },
+    {
+      ...(mobile ? { x: 0 } : { y: 0 }),
+      filter: "blur(0px)",
+      opacity: 1,
+      stagger: 0.5,
+      duration: 0.5,
+      ease: "power2.out",
+      scrollTrigger: {
+        trigger: container.current,
+        start: "top 80%",
+        toggleActions: "play none none none",
+        once: true,
+      },
+    }
+  );
+}, []);
   return (
-    <section ref={container} className="my-20">
-      <div className="container mx-auto py-4 px-4 xl:w-7xl">
+    <section className="my-20">
+      <div className="container mx-auto py-4 px-4 xl:w-7xl overflow-hidden">
         <div>
           <h1 className="text-4xl text-center font-semibold mb-6 text-accent-foreground">
             📦 Services
@@ -77,7 +84,10 @@ const ServicesPage = () => {
             database solutions. Choose the right plan.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        <div
+          ref={container}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8"
+        >
           {CardData.map((i, id) => {
             return (
               <ServiceCard

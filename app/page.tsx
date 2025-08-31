@@ -5,11 +5,12 @@ import ServicesPage from "@/components/Pages/ServicesPage";
 import SubscribePage from "@/components/Pages/SubscribePage";
 import TestimonialMarquee from "@/components/Pages/TestimonialsPage";
 import React from "react";
+import AnimatedBg from "@/components/AnimatedBg";
 
 const page = () => {
   return (
     <>
-      <div className="bg-primary/80 md:bg-primary/40 blur-3xl rounded-full size-[20vw] absolute right-5 md:right-0" />
+      <AnimatedBg />
       <div className="z-10">
         <HeroPage />
         <ServicesPage />

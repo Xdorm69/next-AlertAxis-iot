@@ -7,7 +7,7 @@ import AnimatedHand from "../AnimatedHand";
 
 const DashboardPage = async () => {
   const clerkUser = await currentUser();
-  const user = {role: "USER", name: clerkUser?.fullName || "GUEST"};
+  const user = {role: "ADMIN", name: clerkUser?.fullName || "GUEST"};
 
   return (
     <section className="my-18 min-h-[60vh]">

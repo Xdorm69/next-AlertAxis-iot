@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
   // });
 
   const dbUser = {
-    role: "USER",
+    role: "ADMIN",
     name: "Amitoj Singh",
     email: "amitoj.mehta@gmail.com",
   };
