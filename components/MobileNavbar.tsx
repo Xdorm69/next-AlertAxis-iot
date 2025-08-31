@@ -9,6 +9,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Button } from "./ui/button";
 import { navlinks } from "@/constants/nav";
 import { ClerkBtns } from "./ClerkBtns";
+import { ModeToggle } from "./ui/ModeToggle";
 
 const MobileNavbar = () => {
   const mobileNav = useRef<HTMLDivElement>(null);
@@ -91,10 +92,13 @@ useEffect(() => {
 
   return (
     <div className="md:hidden flex items-center">
+      <div className="mr-2">
+        <ModeToggle size="sm" />
+      </div>
       <button className="mr-2" onClick={() => setOpen((prev) => !prev)}>
         <MenuIcon className="size-8 text-foreground" />
       </button>
-      <ClerkBtns/>
+      <ClerkBtns />
 
       <div
         ref={mobileNav}

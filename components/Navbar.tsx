@@ -17,7 +17,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between">
           {/* LEFT  */}
           <Link href="/">
-            <WebTitle className="text-3xl" />
+            <WebTitle className="text-2xl md:text-3xl" />
           </Link>
           {/* RIGHT  */}
 
