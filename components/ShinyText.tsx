@@ -1,6 +1,6 @@
 import "./ShinyText.css";
 
-const ShinyText = ({ text, disabled = false, speed = 5, className = "" }) => {
+const ShinyText = ({ text, disabled = false, speed = 5, className = "" }: { text: string, disabled?: boolean, speed?: number, className?: string }) => {
   const animationDuration = `${speed}s`;
 
   return (
