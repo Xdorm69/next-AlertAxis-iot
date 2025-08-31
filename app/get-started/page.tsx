@@ -16,7 +16,7 @@ export default function GetStartedPage() {
         className="max-w-3xl w-full text-center"
       >
         {/* Hero Section */}
-        <h1 className="text-4xl flex gap-2 justify-center font-bold mb-4">
+        <h1 className="text-4xl flex flex-wrap gap-2 justify-center font-bold mb-4">
           Welcome to <WebTitle/>
         </h1>
         <p className="text-muted-foreground text-lg mb-8">
