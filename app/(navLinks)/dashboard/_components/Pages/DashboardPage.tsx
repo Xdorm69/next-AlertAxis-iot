@@ -22,7 +22,7 @@ const DashboardPage = async () => {
       <div className="container mx-auto py-4 px-4 xl:w-7xl h-full">
         <div className="flex items-center justify-between">
           <div className="text-2xl md:text-2xl lg:text-4xl font-bold">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-0 md:gap-2">
               Hello!{" "}
               <span className="text-primary">
                 {user.name.split(" ").slice(0, 2).join(" ")}

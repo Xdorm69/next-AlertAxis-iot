@@ -6,7 +6,7 @@ const SelectStatusDashboard = ({ setStatusFilter, statusFilter }: { setStatusFil
   return (
     <div>
       <Select onValueChange={setStatusFilter} value={statusFilter}>
-        <SelectTrigger className="w-20 md:w-32">
+        <SelectTrigger className="w-full lg:w-32">
           <SelectValue placeholder="Status" />
         </SelectTrigger>
         <SelectContent>

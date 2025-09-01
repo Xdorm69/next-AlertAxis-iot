@@ -26,6 +26,8 @@ import { HoverCardForText } from "./HoverCardForText";
 import { DateRangePicker } from "./DateRangePicker";
 import SelectRoleDashboard from "./SelectRoleDashboard";
 import SelectStatusDashboard from "./SelectStatusDashboard";
+import SearchDashboard from "./SearchDashboard";
+import DashboardFilters from "./DashboardFilters";
 
 const DashBoardTableWrapper = ({
   user,
@@ -46,6 +48,7 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [page, setPage] = useState<number>(1);
   const [date, setDate] = useState<DateRange | undefined>();
+  const [search, setSearch] = useState<string>("");
 
   const { data, isLoading, isError, isSuccess, isFetching } = useQuery({
     queryKey: [
@@ -56,6 +59,7 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
       page,
       date?.from?.toISOString(),
       date?.to?.toISOString(),
+      search,
     ],
     queryFn: () =>
       fetchDashboardData({
@@ -64,37 +68,27 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
         page,
         dateFrom: date?.from?.toISOString() || "",
         dateTo: date?.to?.toISOString() || "",
+        search,
       }),
     refetchOnWindowFocus: false,
   });
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-4">
-          <SelectStatusDashboard
-            setStatusFilter={setStatusFilter}
-            statusFilter={statusFilter}
-          />
-
-          {user.role === "ADMIN" && (
-            <SelectRoleDashboard
-              setRoleFilter={setRoleFilter}
-              roleFilter={roleFilter}
-            />
-          )}
-
-          <DateRangePicker date={date} setDate={setDate} />
-        </div>
-
-        <Button
-          className="text-white cursor-pointer font-semibold"
-          onClick={() => DownloadCSV(data || [])}
-        >
-          Download CSV
-        </Button>
-      </div>
+      {/* FILTERS  */}
+      <DashboardFilters
+        search={search}
+        setSearch={setSearch}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        roleFilter={roleFilter}
+        setRoleFilter={setRoleFilter}
+        date={date}
+        setDate={setDate}
+        user={user}
+        data={data}
+        DownloadCSV={DownloadCSV}
+      />
 
       {/* Table */}
       <div className="shadow-xl rounded-xl overflow-hidden">

@@ -28,24 +28,26 @@ export function DateRangePicker({
             id="date"
             variant={"outline"}
             className={cn(
-              "w-fit justify-start text-left font-normal",
+              "w-full lg:w-fit flex justify-between items-center text-left font-normal",
               !date && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date?.from ? (
-              date.to ? (
-                <>
-                  {format(date.from, "LLL dd")} - {format(date.to, "LLL dd")}
-                </>
+            <div className="flex items-center">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {date?.from ? (
+                date.to ? (
+                  <>
+                    {format(date.from, "LLL dd")} - {format(date.to, "LLL dd")}
+                  </>
+                ) : (
+                  format(date.from, "LLL dd")
+                )
               ) : (
-                format(date.from, "LLL dd")
-              )
-            ) : (
-              <span>Date range</span>
-            )}
+                <span>Date range</span>
+              )}
+            </div>
 
-            <ChevronDown className="ml-4" />
+            <ChevronDown />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">

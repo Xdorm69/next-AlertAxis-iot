@@ -44,6 +44,9 @@ export async function GET(request: NextRequest) {
   const page = Number(searchParams.get("page"));
   const dateFrom:string = searchParams.get("dateFrom") || "";
   const dateTo:string = searchParams.get("dateTo") || "";
+  const search = searchParams.get("search") || "";
+
+  console.log("SEARCH QUERY: ", search);
 
   try {
     const data = await prisma.accessLog.findMany({
@@ -68,6 +71,59 @@ export async function GET(request: NextRequest) {
               })(),
             },
           }),
+        ...(search
+          ? {
+              OR: [
+                {
+                  user: {
+                    is: {
+                      name: {
+                        contains: search,
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                },
+                {
+                  user: {
+                    is: {
+                      username: { contains: search, mode: "insensitive" },
+                    },
+                  },
+                },
+                {
+                  user: {
+                    is: {
+                      email: {
+                        contains: search,
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                },
+                {
+                  rfid: {
+                    is: {
+                      tagId: {
+                        contains: search,
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                },
+                {
+                  device: {
+                    is: {
+                      name: {
+                        contains: search,
+                        mode: "insensitive",
+                      },
+                    },
+                  },
+                },
+              ],
+            }
+          : {}),
       },
       include: {
         user: {
@@ -88,7 +144,7 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      skip: page * 10,
+      ...(search ? {} : { skip: page * 10 }),
       take: 10,
       orderBy: { timestamp: "desc" },
     });

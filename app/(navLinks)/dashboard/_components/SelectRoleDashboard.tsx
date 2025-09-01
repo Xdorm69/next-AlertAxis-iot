@@ -8,7 +8,7 @@ const SelectRoleDashboard = ({setRoleFilter, roleFilter}: {setRoleFilter: (role:
   return (
     <div>
       <Select onValueChange={setRoleFilter} value={roleFilter}>
-        <SelectTrigger className="w-20 md:w-32">
+        <SelectTrigger className="w-full lg:w-32">
           <SelectValue placeholder="Role" />
         </SelectTrigger>
         <SelectContent>
