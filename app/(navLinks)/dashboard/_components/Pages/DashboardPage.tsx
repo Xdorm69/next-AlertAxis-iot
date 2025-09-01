@@ -1,20 +1,34 @@
-
 import React from "react";
 import { cn } from "@/lib/utils";
 import DashboardTable from "../DashboardTable";
 import { currentUser } from "@clerk/nextjs/server";
 import AnimatedHand from "../AnimatedHand";
+import { prisma } from "@/lib/db";
+import { redirect } from "next/navigation";
+import SystemAdministeration from "../Admin/SystemAdministeration";
+import UserManagement from "../Admin/UserManagement";
+import AccessLogManagement from "../Admin/AccessLogManagement";
+import RfidAndDeviceManagement from "../Admin/RfidAndDeviceManagement";
 
 const DashboardPage = async () => {
   const clerkUser = await currentUser();
-  const user = {role: "ADMIN", name: clerkUser?.fullName || "GUEST"};
+  const user = await prisma.user.findUnique({
+    where: { clerkId: clerkUser?.id },
+  });
+  if (!user) return redirect("/sync");
 
   return (
     <section className="my-18 min-h-[60vh]">
       <div className="container mx-auto py-4 px-4 xl:w-7xl h-full">
         <div className="flex items-center justify-between">
-          <div className="text-2xl md:text-2xl lg:text-4xl font-bold flex gap-2">
-            <h1>Hello! {user.name.split(" ").slice(0, 2).join(" ")}</h1> <AnimatedHand />
+          <div className="text-2xl md:text-2xl lg:text-4xl font-bold">
+            <div className="flex items-center gap-2">
+              Hello!{" "}
+              <span className="text-primary">
+                {user.name.split(" ").slice(0, 2).join(" ")}
+              </span>
+              <AnimatedHand />
+            </div>{" "}
           </div>
           {/* NEED TO BE GENERATED FROM DB  */}
           <div
@@ -36,6 +50,20 @@ const DashboardPage = async () => {
         <div className="mt-12">
           <DashboardTable user={user} />
         </div>
+
+        {user.role === "ADMIN" && (
+          <div className="mt-12">
+            <h1 className="text-3xl font-semibold text-accent-foreground">
+              Admin Actions 🥊
+            </h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+              <SystemAdministeration/>
+              <UserManagement/>
+              <AccessLogManagement/>
+              <RfidAndDeviceManagement/>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

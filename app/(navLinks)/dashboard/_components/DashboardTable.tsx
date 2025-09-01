@@ -9,13 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
   QueryClient,
@@ -27,8 +20,18 @@ import { fetchDashboardData } from "../fetch/fetchData";
 import { AccessLogWithUser } from "@/app/api/dashboard/route";
 import { Button } from "@/components/ui/button";
 import { DownloadCSV } from "../fetch/DownloadCSV";
+import { DateRange } from "react-day-picker";
+import { SkeletonRow } from "./SkeletonRow";
+import { HoverCardForText } from "./HoverCardForText";
+import { DateRangePicker } from "./DateRangePicker";
+import SelectRoleDashboard from "./SelectRoleDashboard";
+import SelectStatusDashboard from "./SelectStatusDashboard";
 
-const DashBoardTableWrapper = ({user}: {user: {role: string, name: string}}) => {
+const DashBoardTableWrapper = ({
+  user,
+}: {
+  user: { role: string; name: string };
+}) => {
   const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
@@ -41,42 +44,48 @@ const DashBoardTableWrapper = ({user}: {user: {role: string, name: string}}) => 
 const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
+  const [page, setPage] = useState<number>(1);
+  const [date, setDate] = useState<DateRange | undefined>();
 
-  const { data, isLoading, isError, isSuccess, isFetching, isFetched } =
-    useQuery({
-      queryKey: ["dashboard", "admin", statusFilter, roleFilter],
-      queryFn: () => fetchDashboardData({ statusFilter, roleFilter }),
-      initialData: [],
-    });
+  const { data, isLoading, isError, isSuccess, isFetching } = useQuery({
+    queryKey: [
+      "dashboard",
+      "admin",
+      statusFilter,
+      roleFilter,
+      page,
+      date?.from?.toISOString(),
+      date?.to?.toISOString(),
+    ],
+    queryFn: () =>
+      fetchDashboardData({
+        statusFilter,
+        roleFilter,
+        page,
+        dateFrom: date?.from?.toISOString() || "",
+        dateTo: date?.to?.toISOString() || "",
+      }),
+    refetchOnWindowFocus: false,
+  });
 
   return (
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex items-center justify-between">
         <div className="flex gap-4">
-          <Select onValueChange={setStatusFilter} value={statusFilter}>
-            <SelectTrigger className="w-20 md:w-32">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All</SelectItem>
-              <SelectItem value="GRANTED">Granted</SelectItem>
-              <SelectItem value="DENIED">Denied</SelectItem>
-            </SelectContent>
-          </Select>
+          <SelectStatusDashboard
+            setStatusFilter={setStatusFilter}
+            statusFilter={statusFilter}
+          />
 
           {user.role === "ADMIN" && (
-            <Select onValueChange={setRoleFilter} value={roleFilter}>
-              <SelectTrigger className="w-20 md:w-32">
-                <SelectValue placeholder="Role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ALL">All</SelectItem>
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="USER">User</SelectItem>
-              </SelectContent>
-            </Select>
+            <SelectRoleDashboard
+              setRoleFilter={setRoleFilter}
+              roleFilter={roleFilter}
+            />
           )}
+
+          <DateRangePicker date={date} setDate={setDate} />
         </div>
 
         <Button
@@ -96,26 +105,26 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
               <TableHead>Email</TableHead>
               <TableHead>Role</TableHead>
               <TableHead>RFID</TableHead>
+              <TableHead>Device</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Timestamp</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ||
-              (isFetching &&
-                Array.from({ length: 5 }).map((_, idx) => (
-                  <SkeletonRow key={idx} />
-                )))}
+            {(isLoading || isFetching) &&
+              Array.from({ length: 10 }).map((_, idx) => (
+                <SkeletonRow key={idx} />
+              ))}
             {isError && (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   Error...
                 </TableCell>
               </TableRow>
             )}
             {isSuccess && !isFetching && !data?.length ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center">
+                <TableCell colSpan={7} className="h-24 text-center">
                   No logs found.
                 </TableCell>
               </TableRow>
@@ -126,7 +135,7 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
                 <TableRow key={log.id}>
                   <TableCell>{log.user.name || "N/A"}</TableCell>
                   <TableCell className="text-muted-foreground">
-                    {log.user.email}
+                    <HoverCardForText data={log.user.email} tag={"email"} />
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -138,8 +147,9 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {log.rfid.tagId}
+                    <HoverCardForText data={log.rfid.tagId} tag={"rfid tag"} />
                   </TableCell>
+                  <TableCell>{log.device.name}</TableCell>
                   <TableCell>
                     <Badge
                       variant={
@@ -158,18 +168,24 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
           </TableBody>
         </Table>
       </div>
+      <div className="pagination btns flex gap-4 justify-end items-center w-full">
+        <Button
+          variant={"outline"}
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+        >
+          Previous
+        </Button>
+        <Button
+          variant={"outline"}
+          disabled={data && data.length < 10}
+          onClick={() => setPage(page + 1)}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };
-
-const SkeletonRow = () => (
-  <TableRow>
-    {Array.from({ length: 6 }).map((_, idx) => (
-      <TableCell key={idx}>
-        <div className="h-4 bg-gray-700 rounded animate-pulse w-full" />
-      </TableCell>
-    ))}
-  </TableRow>
-);
 
 export default DashBoardTableWrapper;

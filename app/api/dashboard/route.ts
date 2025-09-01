@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 export type AccessLogWithUser = {
@@ -15,95 +14,91 @@ export type AccessLogWithUser = {
   rfid: {
     tagId: string;
   };
+  device: {
+    name: string;
+  }
 };
-
-const dummyAdminLogs: AccessLogWithUser[] = [
-  {
-    id: "1",
-    timestamp: new Date().toISOString(),
-    status: "GRANTED",
-    user: { name: "Alice", email: "alice@example.com", role: "ADMIN" },
-    rfid: { tagId: "RFID123" },
-  },
-  {
-    id: "2",
-    timestamp: new Date().toISOString(),
-    status: "DENIED",
-    user: { name: "Bob", email: "bob@example.com", role: "USER" },
-    rfid: { tagId: "RFID456" },
-  },
-  {
-    id: "3",
-    timestamp: new Date().toISOString(),
-    status: "GRANTED",
-    user: { name: "Charlie", email: "charlie@example.com", role: "USER" },
-    rfid: { tagId: "RFID789" },
-  },
-];
-
-const dummyUserLogs: AccessLogWithUser[] = [
-  {
-    id: "101",
-    timestamp: new Date().toISOString(),
-    status: "GRANTED",
-    user: { name: "Bob", email: "bob@example.com", role: "USER" },
-    rfid: { tagId: "RFID456" },
-  },
-  {
-    id: "102",
-    timestamp: new Date().toISOString(),
-    status: "DENIED",
-    user: { name: "Bob", email: "bob@example.com", role: "USER" },
-    rfid: { tagId: "RFID457" },
-  },
-  {
-    id: "103",
-    timestamp: new Date().toISOString(),
-    status: "GRANTED",
-    user: { name: "Bob", email: "bob@example.com", role: "USER" },
-    rfid: { tagId: "RFID458" },
-  },
-];
 
 export async function GET(request: NextRequest) {
   const user = await currentUser();
-  if (!user) return redirect("/");
-
-  // const dbUser = await prisma.user.findUnique({
-  //     where: {
-  //         clerkId: user.id,
-  //     },
-  // });
-
-  const dbUser = {
-    role: "ADMIN",
-    name: "Amitoj Singh",
-    email: "amitoj.mehta@gmail.com",
-  };
-
-  if (!dbUser) return redirect("/sync");
-
-  const searchParams = new URL(request.url).searchParams;
-  const statusFilter = searchParams.get("statusFilter");
-  const roleFilter = searchParams.get("roleFilter");
-
-  if (dbUser.role === "ADMIN") {
-    const data = filterData(dummyAdminLogs, statusFilter, roleFilter);
-    return NextResponse.json(data);
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const data = filterData(dummyUserLogs, statusFilter, roleFilter);
-  return NextResponse.json(data);
-}
-
-const filterData = (
-  logs: AccessLogWithUser[],
-  status: string | null,
-  role: string | null
-) => {
-  return logs.filter((log) => {
-    const statusMatch = !status || status === "ALL" || log.status === status;
-    const roleMatch = !role || role === "ALL" || log.user.role === role;
-    return statusMatch && roleMatch;
+  const dbUser = await prisma.user.findUnique({
+    where: { clerkId: user.id },
   });
-};
+
+  //DBUSER FOR TESTING PURPOSE 
+  // const dbUser = await prisma.user.findUnique({
+  //   where: { id: "cmf0qi3ch0001g8ccelc8728l" },
+  // });
+
+  if (!dbUser) {
+    return NextResponse.json({ error: "User not synced" }, { status: 403 });
+  }
+
+  const searchParams = new URL(request.url).searchParams;
+  const statusFilter = searchParams.get("statusFilter"); // ALL | GRANTED | DENIED
+  const roleFilter = searchParams.get("roleFilter"); // ALL | ADMIN | USER
+  const page = Number(searchParams.get("page"));
+  const dateFrom:string = searchParams.get("dateFrom") || "";
+  const dateTo:string = searchParams.get("dateTo") || "";
+
+  try {
+    const data = await prisma.accessLog.findMany({
+      where: {
+        ...(dbUser.role?.toUpperCase() === "USER" && { userId: dbUser.id }), // only restrict if USER
+        ...(statusFilter &&
+          statusFilter !== "ALL" && {
+            status: statusFilter as "GRANTED" | "DENIED",
+          }),
+        ...(roleFilter &&
+          roleFilter !== "ALL" && {
+            user: { role: roleFilter as "ADMIN" | "USER" },
+          }),
+        ...(dateFrom &&
+          dateTo && {
+            timestamp: {
+              gte: new Date(dateFrom),
+              lte: (() => {
+                const end = new Date(dateTo);
+                end.setHours(23, 59, 59, 999);
+                return end;
+              })(),
+            },
+          }),
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+        rfid: {
+          select: {
+            tagId: true,
+          },
+        },
+        device: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      skip: page * 10,
+      take: 10,
+      orderBy: { timestamp: "desc" },
+    });
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Error fetching access logs:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch access logs" },
+      { status: 500 }
+    );
+  }
+}
