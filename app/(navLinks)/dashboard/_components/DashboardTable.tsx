@@ -28,11 +28,14 @@ import SelectRoleDashboard from "./SelectRoleDashboard";
 import SelectStatusDashboard from "./SelectStatusDashboard";
 import SearchDashboard from "./SearchDashboard";
 import DashboardFilters from "./DashboardFilters";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const DashBoardTableWrapper = ({
   user,
+  
 }: {
   user: { role: string; name: string };
+
 }) => {
   const queryClient = new QueryClient();
   return (
@@ -43,14 +46,20 @@ const DashBoardTableWrapper = ({
   );
 };
 
-const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
+const DashboardTable = ({
+  user,
+
+}: {
+  user: { role: string; name: string };
+ 
+}) => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [page, setPage] = useState<number>(1);
   const [date, setDate] = useState<DateRange | undefined>();
   const [search, setSearch] = useState<string>("");
 
-  const { data, isLoading, isError, isSuccess, isFetching } = useQuery({
+  const {data: res, isLoading, isError, isSuccess, isFetching } = useQuery({
     queryKey: [
       "dashboard",
       "admin",
@@ -71,7 +80,12 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
         search,
       }),
     refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
+
+  const data = res?.APIData?.data;
+  const count = res?.count;
 
   return (
     <div className="space-y-4">
@@ -94,14 +108,14 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
       <div className="shadow-xl rounded-xl overflow-hidden">
         <Table>
           <TableHeader className="bg-card">
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>RFID</TableHead>
-              <TableHead>Device</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Timestamp</TableHead>
+            <TableRow >
+              <TableHead className="font-bold font-mono">User</TableHead>
+              <TableHead className="font-bold font-mono">Email</TableHead>
+              <TableHead className="font-bold font-mono">Role</TableHead>
+              <TableHead className="font-bold font-mono">RFID</TableHead>
+              <TableHead className="font-bold font-mono">Device</TableHead>
+              <TableHead className="font-bold font-mono">Status</TableHead>
+              <TableHead className="font-bold font-mono">Timestamp</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -163,19 +177,30 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
         </Table>
       </div>
       <div className="pagination btns flex gap-4 justify-end items-center w-full">
+        {isLoading || isFetching ? (
+          <div className="h-9 w-20 bg-gray-700 rounded animate-pulse" />
+        ) : (
+          <div className="text-muted-foreground rounded-lg bg-card shadow px-4 py-2">
+            Page: <span className="text-white">{page}</span> / {Math.floor(count / 10)}
+          </div>
+        )}
         <Button
           variant={"outline"}
           disabled={page === 1}
           onClick={() => setPage(page - 1)}
+          className="flex items-center gap-1"
         >
+          <ChevronLeft />
           Previous
         </Button>
         <Button
           variant={"outline"}
           disabled={data && data.length < 10}
           onClick={() => setPage(page + 1)}
+          className="flex items-center gap-1"
         >
           Next
+          <ChevronRight />
         </Button>
       </div>
     </div>

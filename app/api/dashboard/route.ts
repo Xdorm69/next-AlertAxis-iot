@@ -16,7 +16,7 @@ export type AccessLogWithUser = {
   };
   device: {
     name: string;
-  }
+  };
 };
 
 export async function GET(request: NextRequest) {
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
     where: { clerkId: user.id },
   });
 
-  //DBUSER FOR TESTING PURPOSE 
+  //DBUSER FOR TESTING PURPOSE
   // const dbUser = await prisma.user.findUnique({
   //   where: { id: "cmf0qi3ch0001g8ccelc8728l" },
   // });
@@ -42,114 +42,140 @@ export async function GET(request: NextRequest) {
   const statusFilter = searchParams.get("statusFilter"); // ALL | GRANTED | DENIED
   const roleFilter = searchParams.get("roleFilter"); // ALL | ADMIN | USER
   const page = Number(searchParams.get("page"));
-  const dateFrom:string = searchParams.get("dateFrom") || "";
-  const dateTo:string = searchParams.get("dateTo") || "";
+  const dateFrom: string = searchParams.get("dateFrom") || "";
+  const dateTo: string = searchParams.get("dateTo") || "";
   const search = searchParams.get("search") || "";
 
   console.log("SEARCH QUERY: ", search);
 
   try {
-    const data = await prisma.accessLog.findMany({
-      where: {
-        ...(dbUser.role?.toUpperCase() === "USER" && { userId: dbUser.id }), // only restrict if USER
-        ...(statusFilter &&
-          statusFilter !== "ALL" && {
-            status: statusFilter as "GRANTED" | "DENIED",
-          }),
-        ...(roleFilter &&
-          roleFilter !== "ALL" && {
-            user: { role: roleFilter as "ADMIN" | "USER" },
-          }),
-        ...(dateFrom &&
-          dateTo && {
-            timestamp: {
-              gte: new Date(dateFrom),
-              lte: (() => {
-                const end = new Date(dateTo);
-                end.setHours(23, 59, 59, 999);
-                return end;
-              })(),
-            },
-          }),
-        ...(search
-          ? {
-              OR: [
-                {
-                  user: {
-                    is: {
-                      name: {
-                        contains: search,
-                        mode: "insensitive",
+    const [data, count] = await prisma.$transaction([
+      prisma.accessLog.findMany({
+        where: {
+          ...(dbUser.role?.toUpperCase() === "USER" && { userId: dbUser.id }),
+          ...(statusFilter &&
+            statusFilter !== "ALL" && {
+              status: statusFilter as "GRANTED" | "DENIED",
+            }),
+          ...(roleFilter &&
+            roleFilter !== "ALL" && {
+              user: { role: roleFilter as "ADMIN" | "USER" },
+            }),
+          ...(dateFrom &&
+            dateTo && {
+              timestamp: {
+                gte: new Date(dateFrom),
+                lte: (() => {
+                  const end = new Date(dateTo);
+                  end.setHours(23, 59, 59, 999);
+                  return end;
+                })(),
+              },
+            }),
+          ...(search
+            ? {
+                OR: [
+                  {
+                    user: {
+                      is: { name: { contains: search, mode: "insensitive" } },
+                    },
+                  },
+                  {
+                    user: {
+                      is: {
+                        username: { contains: search, mode: "insensitive" },
                       },
                     },
                   },
-                },
-                {
-                  user: {
-                    is: {
-                      username: { contains: search, mode: "insensitive" },
+                  {
+                    user: {
+                      is: { email: { contains: search, mode: "insensitive" } },
                     },
                   },
-                },
-                {
-                  user: {
-                    is: {
-                      email: {
-                        contains: search,
-                        mode: "insensitive",
-                      },
+                  {
+                    rfid: {
+                      is: { tagId: { contains: search, mode: "insensitive" } },
                     },
                   },
-                },
-                {
-                  rfid: {
-                    is: {
-                      tagId: {
-                        contains: search,
-                        mode: "insensitive",
-                      },
+                  {
+                    device: {
+                      is: { name: { contains: search, mode: "insensitive" } },
                     },
                   },
-                },
-                {
-                  device: {
-                    is: {
-                      name: {
-                        contains: search,
-                        mode: "insensitive",
-                      },
-                    },
-                  },
-                },
-              ],
-            }
-          : {}),
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-            role: true,
-          },
+                ],
+              }
+            : {}),
         },
-        rfid: {
-          select: {
-            tagId: true,
-          },
+        include: {
+          user: { select: { name: true, email: true, role: true } },
+          rfid: { select: { tagId: true } },
+          device: { select: { name: true } },
         },
-        device: {
-          select: {
-            name: true,
-          },
-        },
-      },
-      ...(search ? {} : { skip: page * 10 }),
-      take: 10,
-      orderBy: { timestamp: "desc" },
-    });
+        ...(search ? {} : { skip: page * 10 }),
+        take: 10,
+        orderBy: { timestamp: "desc" },
+      }),
 
-    return NextResponse.json(data);
+      prisma.accessLog.count({
+        where: {
+          ...(dbUser.role?.toUpperCase() === "USER" && { userId: dbUser.id }),
+          ...(statusFilter &&
+            statusFilter !== "ALL" && {
+              status: statusFilter as "GRANTED" | "DENIED",
+            }),
+          ...(roleFilter &&
+            roleFilter !== "ALL" && {
+              user: { role: roleFilter as "ADMIN" | "USER" },
+            }),
+          ...(dateFrom &&
+            dateTo && {
+              timestamp: {
+                gte: new Date(dateFrom),
+                lte: (() => {
+                  const end = new Date(dateTo);
+                  end.setHours(23, 59, 59, 999);
+                  return end;
+                })(),
+              },
+            }),
+          ...(search
+            ? {
+                OR: [
+                  {
+                    user: {
+                      is: { name: { contains: search, mode: "insensitive" } },
+                    },
+                  },
+                  {
+                    user: {
+                      is: {
+                        username: { contains: search, mode: "insensitive" },
+                      },
+                    },
+                  },
+                  {
+                    user: {
+                      is: { email: { contains: search, mode: "insensitive" } },
+                    },
+                  },
+                  {
+                    rfid: {
+                      is: { tagId: { contains: search, mode: "insensitive" } },
+                    },
+                  },
+                  {
+                    device: {
+                      is: { name: { contains: search, mode: "insensitive" } },
+                    },
+                  },
+                ],
+              }
+            : {}),
+        },
+      }),
+    ]);
+
+    return NextResponse.json({ APIData: {data}, count });
   } catch (error) {
     console.error("Error fetching access logs:", error);
     return NextResponse.json(

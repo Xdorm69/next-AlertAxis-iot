@@ -1,4 +1,4 @@
-import React from "react";
+import React, { cache } from "react";
 import { cn } from "@/lib/utils";
 import DashboardTable from "../DashboardTable";
 import { currentUser } from "@clerk/nextjs/server";
