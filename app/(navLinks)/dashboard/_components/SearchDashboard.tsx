@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Search } from "lucide-react";
 
 const SearchDashboard = ({
@@ -8,6 +8,8 @@ const SearchDashboard = ({
   search: string;
   setSearch: (search: string) => void;
 }) => {
+    //making a local state for ui
+    const [localSearch, setLocalSearch] = useState(search);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,6 +17,7 @@ const SearchDashboard = ({
       clearTimeout(timeoutRef.current);
     }
     const value = e.target.value;
+    setLocalSearch(value);
     timeoutRef.current = setTimeout(() => {
       setSearch(value);
     }, 500);
@@ -25,10 +28,11 @@ const SearchDashboard = ({
       <Search className="h-4 w-4 text-muted-foreground" />
       <input
         type="text"
-        defaultValue={search}
+        value={localSearch} // ✅ controlled instead of defaultValue
         onChange={handleValueChange}
         placeholder="Search..."
-        className="h-8 border-0 text-foreground placeholder:text-muted-foreground focus:outline-none"
+        autoFocus={false} // ✅ prevent auto-focus on mount
+        className="h-8 w-full lg:w-48 border-0 text-foreground placeholder:text-muted-foreground focus:outline-none"
       />
     </div>
   );

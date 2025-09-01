@@ -181,7 +181,7 @@ const DashboardTable = ({
           <div className="h-9 w-20 bg-gray-700 rounded animate-pulse" />
         ) : (
           <div className="text-muted-foreground rounded-lg bg-card shadow px-4 py-2">
-            Page: <span className="text-white">{page}</span> / {Math.floor(count / 10)}
+            Page: <span className="text-foreground">{page}</span> / {Math.floor(count / 10)}
           </div>
         )}
         <Button

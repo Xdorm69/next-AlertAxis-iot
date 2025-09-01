@@ -33,10 +33,10 @@ const DashboardPage = async () => {
           {/* NEED TO BE GENERATED FROM DB  */}
           <div
             className={cn(
-              "rounded-full px-4 py-1 cursor-default w-fit font-semibold border-1 border-ring bg-accent text-white transition-shadow duration-300 ease-in-out",
+              "rounded-full px-4 py-1 cursor-default w-fit font-semibold border-1 border-ring bg-accent text-foreground transition-shadow duration-300 ease-in-out",
               "hover:shadow-[0px_0px_20px_3px_#000] hover:shadow-primary", // single hover shadow class
               user.role === "ADMIN" &&
-                "bg-emerald-800 border-emerald-400 hover:shadow-emerald-400"
+                "bg-emerald-800 text-white border-emerald-400 hover:shadow-emerald-400"
             )}
           >
             {user.role}

@@ -58,7 +58,7 @@ export default function DashboardFilters({
               <Filter className="text-muted-foreground"/>
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="space-y-4 px-10">
+          <SheetContent side="bottom" className="space-y-4 px-4 md:px-8 pb-10">
             <SheetHeader>
               <SheetTitle>Filters</SheetTitle>
               <SheetDescription>
