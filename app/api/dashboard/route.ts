@@ -67,9 +67,6 @@ export async function GET(request: NextRequest) {
               name: { contains: search, mode: "insensitive" as const },
             },
           },
-          {
-            rfid: { tagId: { contains: search, mode: "insensitive" as const } }, // optional but useful
-          },
         ],
       }),
       ...(dbUser.role?.toUpperCase() === "USER" && { userId: dbUser.id }),

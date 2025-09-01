@@ -6,50 +6,57 @@ import {
   DialogDescription,
   DialogTrigger,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import LottieAnimPlayer from "@/components/LottieAnimPlayer";
 import lottieAnim from "@/public/dashboard/admin/systemAdmin.json"
 
+const SystemAdministerationData = {
+    title: "System Administration",
+    desc: "Manage global settings and monitor system health.",
+    animation: lottieAnim,
+    className: "h-[300px] overflow-hidden relative",
+}
+
 const SystemAdministeration = () => {
   return (
     <div>
       <Dialog>
         <DialogTrigger asChild>
-          <Card className="h-[300px] overflow-hidden relative">
+          <Card className={SystemAdministerationData.className}>
             <CardHeader>
               <CardTitle className="text-primary font-semibold">
-                System Administration ⚙️
+                {SystemAdministerationData.title}
               </CardTitle>
               <CardDescription className="font-mono">
-                Manage global settings and monitor system health.
+                {SystemAdministerationData.desc}
               </CardDescription>
             </CardHeader>
             <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-full">
-              <LottieAnimPlayer lottieAnimation={lottieAnim} />
+              <LottieAnimPlayer
+                lottieAnimation={SystemAdministerationData.animation}
+              />
             </div>
           </Card>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Basic Dialog</DialogTitle>
+            <DialogTitle>{SystemAdministerationData.title}</DialogTitle>
             <DialogDescription>
-              This is a placeholder dialog. Update its content based on your
-              needs.
+              {SystemAdministerationData.desc}
             </DialogDescription>
           </DialogHeader>
 
           {/* Custom content goes here */}
           <div className="py-4">
-            <p className="text-sm text-muted-foreground">
-              Replace this with your form, actions, or details.
-            </p>
+            <p className="text-sm text-muted-foreground">{SystemAdministerationData.title} Coming Soon...</p>
           </div>
-
           <DialogFooter>
-            <Button variant="secondary">Cancel</Button>
-            <Button variant="default">Confirm</Button>
+            <DialogClose>
+              <Button variant="secondary">Close</Button>
+            </DialogClose>
           </DialogFooter>
         </DialogContent>
       </Dialog>

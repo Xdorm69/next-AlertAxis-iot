@@ -23,11 +23,11 @@ import { DownloadCSV } from "../fetch/DownloadCSV";
 import { DateRange } from "react-day-picker";
 import { SkeletonRow } from "./SkeletonRow";
 import { HoverCardForText } from "./HoverCardForText";
-import { DateRangePicker } from "./DateRangePicker";
-import SelectRoleDashboard from "./SelectRoleDashboard";
-import SelectStatusDashboard from "./SelectStatusDashboard";
-import SearchDashboard from "./SearchDashboard";
 import DashboardFilters from "./DashboardFilters";
+import SystemAdministeration from "./Admin/SystemAdministeration";
+import UserManagement from "./Admin/UserManagement";
+import AccessLogManagement from "./Admin/AccessLogManagement";
+import RfidAndDeviceManagement from "./Admin/RfidAndDeviceManagement";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const DashBoardTableWrapper = ({
@@ -41,6 +41,21 @@ const DashBoardTableWrapper = ({
   return (
     <QueryClientProvider client={queryClient}>
       <DashboardTable user={user} />
+      <>
+        {user.role === "ADMIN" && (
+          <div className="mt-12">
+            <h1 className="text-3xl font-semibold text-accent-foreground">
+              Admin Actions 🥊
+            </h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+              <SystemAdministeration />
+              <UserManagement />
+              <AccessLogManagement />
+              <RfidAndDeviceManagement />
+            </div>
+          </div>
+        )}
+      </>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
