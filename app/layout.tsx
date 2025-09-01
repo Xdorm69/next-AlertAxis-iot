@@ -34,7 +34,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      signInUrl="/sign-in"
+      signUpUrl="/sign-up"
+      signInForceRedirectUrl="/sync"
+      signUpForceRedirectUrl="/sync"
+      signInFallbackRedirectUrl="/sync"
+      signUpFallbackRedirectUrl="/sync"
+    >
       <html lang="en" suppressHydrationWarning>
         <body
           className={`${inter.variable} ${jetBrainsMono.variable} antialiased font-sans`}

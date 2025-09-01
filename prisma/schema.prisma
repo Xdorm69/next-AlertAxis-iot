@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,47 +8,67 @@ datasource db {
 }
 
 enum UserRoles {
-  ADMIN 
+  ADMIN
   USER
 }
 
+enum AccessResults {
+  GRANTED
+  DENIED
+}
+
 model User {
-  id        String    @id @default(cuid())
-  clerkId   String    @unique
-  email     String    @unique
-  name      String?
-  createdAt DateTime  @default(now())
-  role      UserRoles @default(USER)
+  id         String     @id @default(cuid())
+  clerkId    String     @unique
+  email      String     @unique
+  name       String
+  username   String?    @unique
+  phone      String?
+  role       UserRoles  @default(USER)
+  adminSince DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   // Relations
-  accessLog AccessLog[]
-  rfidTags  RFID[]
+  rfids       RFID[]
+  accessLogs  AccessLog[]
+  devices     Device[]   @relation("RegisteredDevices") // devices this user (if admin) has registered
 }
 
 model RFID {
   id        String   @id @default(cuid())
-  tagId     String   @unique   // RFID card number / UID
-  userId    String
+  tagId     String   @unique // UID of RFID card
+  userId    String   // multiple cards can point to one user
   createdAt DateTime @default(now())
 
-  // Relations
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessLog AccessLog[]
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessLogs AccessLog[]
 }
 
-enum AccessResults {
-  GRANTED 
-  DENIED
+model Device {
+  id             String   @id @default(cuid())
+  serialNumber   String   @unique
+  name           String?
+  location       String?
+  status         String   @default("ACTIVE") // ACTIVE, INACTIVE, MAINTENANCE
+  installedAt    DateTime @default(now())
+
+  registeredById String
+  registeredBy   User     @relation("RegisteredDevices", fields: [registeredById], references: [id], onDelete: Cascade)
+
+  accessLogs     AccessLog[]
 }
 
 model AccessLog {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   userId    String
   rfidId    String
-  timestamp DateTime @default(now())
+  deviceId  String
+  timestamp DateTime       @default(now())
   status    AccessResults
 
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rfid RFID @relation(fields: [rfidId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rfid   RFID   @relation(fields: [rfidId], references: [id], onDelete: Cascade)
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 }
+
