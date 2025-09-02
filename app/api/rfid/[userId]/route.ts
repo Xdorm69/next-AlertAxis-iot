@@ -19,7 +19,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const paramUserId = await params?.userId;
+    const paramUserId = params?.userId;
 
     if (paramUserId) {
       const [rfids, user] = await prisma.$transaction([
