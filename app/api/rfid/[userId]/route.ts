@@ -3,7 +3,6 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function GET(
-  req: Request,
   { params }: { params: { userId: string } }
 ) {
   const clerkUser = await auth();
@@ -125,7 +124,7 @@ export async function GET(
           mergedHistogram[day.date].DENIED += day.DENIED;
         });
       });
-      
+
       const chartData = Object.values(mergedHistogram).sort(
         (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
       );

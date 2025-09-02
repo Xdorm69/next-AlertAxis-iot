@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { Device, RFID } from "@prisma/client";
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 
 export type UsersDataSchema = {
   id: string;
@@ -15,7 +15,7 @@ export type UsersDataSchema = {
   updatedAt: Date;
 };
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const user = await auth();
   const id = user.userId;
   if (!id) {
