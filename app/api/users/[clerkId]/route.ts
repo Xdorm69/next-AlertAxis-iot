@@ -40,16 +40,17 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { clerkId: string } }
+  context: { params: Promise<{ clerkId: string }> }
 ) {
   const user = await auth();
   const id = user?.userId;
   if (!id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const paramsId = params.clerkId;
+  
   const { role, secret: SecretFromClient } = await request.json();
 
   try {
+    const {clerkId: paramsId} = await context.params;
     const dbUser = await prisma.user.findUnique({
       where: {
         clerkId: id,
