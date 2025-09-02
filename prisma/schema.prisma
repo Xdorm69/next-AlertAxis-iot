@@ -17,58 +17,64 @@ enum AccessResults {
   DENIED
 }
 
+enum DeviceStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
 model User {
-  id         String     @id @default(cuid())
-  clerkId    String     @unique
-  email      String     @unique
-  name       String
-  username   String?    @unique
-  phone      String?
-  role       UserRoles  @default(USER)
-  adminSince DateTime?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id           String    @id @default(cuid())
+  clerkId      String    @unique
+  email        String    @unique
+  name         String
+  username     String?   @unique
+  phone        String?
+  role         UserRoles @default(USER)
+  adminSince   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
-  rfids       RFID[]
-  accessLogs  AccessLog[]
-  devices     Device[]   @relation("RegisteredDevices") // devices this user (if admin) has registered
+  rfids      RFID[]
+  accessLogs AccessLog[]
+  devices    Device[]    @relation("RegisteredDevices") // devices this user (if admin) has registered
 }
 
 model RFID {
   id        String   @id @default(cuid())
   tagId     String   @unique // UID of RFID card
-  userId    String   // multiple cards can point to one user
+  userId    String // multiple cards can point to one user
+  active    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessLogs AccessLog[]
 }
 
 model Device {
-  id             String   @id @default(cuid())
-  serialNumber   String   @unique
-  name           String?
-  location       String?
-  status         String   @default("ACTIVE") // ACTIVE, INACTIVE, MAINTENANCE
-  installedAt    DateTime @default(now())
+  id           String       @id @default(cuid())
+  serialNumber String       @unique
+  name         String?
+  location     String?
+  status       DeviceStatus @default(ACTIVE) // ACTIVE, INACTIVE, MAINTENANCE
+  installedAt  DateTime     @default(now())
 
   registeredById String
-  registeredBy   User     @relation("RegisteredDevices", fields: [registeredById], references: [id], onDelete: Cascade)
+  registeredBy   User   @relation("RegisteredDevices", fields: [registeredById], references: [id], onDelete: Cascade)
 
-  accessLogs     AccessLog[]
+  accessLogs AccessLog[]
 }
 
 model AccessLog {
-  id        String         @id @default(cuid())
+  id        String        @id @default(cuid())
   userId    String
   rfidId    String
   deviceId  String
-  timestamp DateTime       @default(now())
+  timestamp DateTime      @default(now())
   status    AccessResults
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   rfid   RFID   @relation(fields: [rfidId], references: [id], onDelete: Cascade)
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 }
-

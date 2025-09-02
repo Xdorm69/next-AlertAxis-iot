@@ -174,7 +174,7 @@ export function OnboardForm() {
     const result = await res.json();
     if (result.success) {
       toast.success("Form submitted", { id: "onboard" });
-      router.push("/");
+      router.push("/dashboard");
     } else {
       toast.error(result.error || "Form submission failed", { id: "onboard" });
     }

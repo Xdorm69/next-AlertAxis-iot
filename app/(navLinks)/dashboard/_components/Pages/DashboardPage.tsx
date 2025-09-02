@@ -1,11 +1,13 @@
-import React, { cache } from "react";
+
 import { cn } from "@/lib/utils";
 import DashboardTable from "../DashboardTable";
 import { currentUser } from "@clerk/nextjs/server";
 import AnimatedHand from "../AnimatedHand";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
-
+import SystemAdministeration from "../Admin/SystemAdministeration";
+import UserManagement from "../Admin/UserManagement";
+import RfidAndDeviceManagement from "../Admin/RfidAndDeviceManagement";
 
 const DashboardPage = async () => {
   const clerkUser = await currentUser();
@@ -47,6 +49,20 @@ const DashboardPage = async () => {
         <div className="mt-12">
           <DashboardTable user={user} />
         </div>
+        <>
+          {user.role === "ADMIN" && (
+            <div className="mt-12">
+              <h1 className="text-3xl font-semibold text-accent-foreground">
+                Admin Actions 🥊
+              </h1>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                <SystemAdministeration />
+                <UserManagement />
+                <RfidAndDeviceManagement />
+              </div>
+            </div>
+          )}
+        </>
       </div>
     </section>
   );

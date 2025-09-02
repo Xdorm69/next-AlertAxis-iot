@@ -22,9 +22,9 @@ export default function CheckoutPage() {
     const formEl = e.currentTarget;
 
     const formData = new FormData(formEl);
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const card = formData.get("card") as string;
+    // const name = formData.get("name") as string;
+    // const email = formData.get("email") as string;
+    // const card = formData.get("card") as string;
 
     toast.loading("Processing your payment...", { id: "pay" });
 

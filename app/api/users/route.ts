@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 export type UsersDataSchema = {
   id: string;
   email: string;
+  clerkId: string;
   username: string;
   rfids: RFID[];
   devices: Device[];
@@ -31,6 +32,7 @@ export async function GET(request: NextRequest) {
     const users = await prisma.user.findMany({
       select: {
         id: true,
+        clerkId: true,
         email: true,
         username: true,
         rfids: true,
@@ -41,7 +43,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ users });
+    return NextResponse.json({ users, currentClerkUserId: id });
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(

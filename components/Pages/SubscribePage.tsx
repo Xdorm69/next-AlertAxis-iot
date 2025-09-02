@@ -45,7 +45,7 @@ export default function SubscribePage() {
                 />
                 <Button
                   type="submit"
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl"
+                  className="bg-primary text-white hover:bg-primary/90 rounded-xl"
                 >
                   Subscribe
                 </Button>
