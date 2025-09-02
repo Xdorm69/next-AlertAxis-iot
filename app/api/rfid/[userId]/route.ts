@@ -3,8 +3,8 @@ import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-    request: NextRequest,
-  { params }: { params: { userId: string } }
+  request: NextRequest,
+  context: { params: { userId: string } }
 ) {
   const clerkUser = await auth();
   const id = clerkUser.userId;
@@ -19,7 +19,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const paramUserId = params.userId;
+    const paramUserId = context.params.userId;
 
     if (paramUserId) {
       const [rfids, user] = await prisma.$transaction([

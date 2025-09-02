@@ -3,16 +3,15 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-    request: NextRequest,
-  { params }: { params: { clerkId: string } }
+  request: NextRequest,
+  context: { params: { clerkId: string } }
 ) {
   const user = await auth();
   const id = user?.userId;
   if (!id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const paramsId = params.clerkId;
-
   try {
+    const paramsId = context.params.clerkId;
     const dbUser = await prisma.user.findUnique({
       where: {
         clerkId: id,
@@ -49,7 +48,6 @@ export async function PUT(
 
   const paramsId = params.clerkId;
   const { role, secret: SecretFromClient } = await request.json();
-
 
   try {
     const dbUser = await prisma.user.findUnique({
