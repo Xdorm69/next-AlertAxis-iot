@@ -13,13 +13,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { HoverCardForText } from "../../../_components/HoverCardForText";
 import RoleChangeDialog from "./RoleChangeDialog";
-
-
-
+import { DeleteUserDialog } from "./DeleteUserDialog";
 
 export const UserActionsDialog = ({
   clerkId,
@@ -35,39 +33,6 @@ export const UserActionsDialog = ({
     gcTime: 10 * 60 * 1000,
     staleTime: 10 * 60 * 1000,
   });
-
-  const queryClient = useQueryClient();
-
-  const handleRoleChange = async ({
-    role,
-    secret,
-  }: {
-    role: "USER" | "ADMIN";
-    secret?: string;
-  }) => {
-    toast.loading("Applying change", { id: "role-change" });
-
-    const res = await fetch(`/api/users/${clerkId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ role, secret }),
-    });
-
-    const result = await res.json();
-    if (res.ok) {
-      toast.success(result.message || "Change applied", {
-        id: "role-change",
-      });
-      await queryClient.refetchQueries({ queryKey: ["users-data"] });
-      await queryClient.refetchQueries({ queryKey: [clerkId, "user-data"] });
-    } else {
-      toast.error(result.error || "Failed to apply change", {
-        id: "role-change",
-      });
-    }
-  };
 
   return (
     <Dialog>
@@ -195,14 +160,7 @@ export const UserActionsDialog = ({
                     {/* Delete User */}
                     <div className="space-y-2">
                       <Label className="font-semibold">Delete User</Label>
-                      <Button
-                        variant="destructive"
-                        className="w-full"
-                        type="button"
-                        disabled={clerkId === currentClerkUserId}
-                      >
-                        Delete User
-                      </Button>
+                      <DeleteUserDialog clerkId={clerkId} />
                     </div>
                   </div>
                 ) : (
@@ -225,7 +183,7 @@ export const UserActionsDialog = ({
 
             <RoleChangeDialog
               currentRole={data?.activeUserRole.role}
-              onConfirm={handleRoleChange}
+              clerkId={clerkId}
             />
           </DialogFooter>
         </form>

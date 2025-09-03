@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { auth, clerkClient } from "@clerk/nextjs/server";
+import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -46,11 +47,10 @@ export async function PUT(
   const id = user?.userId;
   if (!id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  
   const { role, secret: SecretFromClient } = await request.json();
 
   try {
-    const {clerkId: paramsId} = await context.params;
+    const { clerkId: paramsId } = await context.params;
     const dbUser = await prisma.user.findUnique({
       where: {
         clerkId: id,
@@ -93,7 +93,49 @@ export async function PUT(
   }
 }
 
-export async function isUserLoggedIn(clerkId: string) {
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ clerkId: string }> }
+) {
+  const user = await auth();
+  const id = user?.userId;
+  if (!id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  try {
+    const dbUser = await prisma.user.findUnique({ where: { clerkId: id } });
+    if (!dbUser)
+      return NextResponse.json({ error: "User not found" }, { status: 400 });
+    if (dbUser.role !== "ADMIN")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 400 });
+
+    const body = await request.json();
+    const { secret: SecretFromClient } = body;
+    if (!SecretFromClient)
+      return NextResponse.json(
+        { error: "A key is required to delete a user" },
+        { status: 400 }
+      );
+
+    const deleteUserId = (await context.params).clerkId;
+
+    if (SecretFromClient !== process.env.USER_DELETE_KEY)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 400 });
+
+    await prisma.user.delete({ where: { clerkId: deleteUserId } });
+
+    return NextResponse.json(
+      { message: "User deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("Error from /api/users/[id]: ", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+async function isUserLoggedIn(clerkId: string) {
   // Fetch sessions from Clerk
   const sessions = await (
     await clerkClient()
@@ -105,7 +147,7 @@ export async function isUserLoggedIn(clerkId: string) {
   return parseUserSessionInfo(sessions.data || []);
 }
 
-export function parseUserSessionInfo(sessions: any[]) {
+function parseUserSessionInfo(sessions: any[]) {
   if (!sessions.length) {
     return { loggedIn: false, lastLoggedInAt: null };
   }

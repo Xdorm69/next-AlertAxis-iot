@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { UserActionsDialog } from "./UserActionDialog";
+import { UserManagementDataFetch } from "../_fetch/UserManagementDataFetch";
 
 const UserDataTableRowCells = [
   "Id",
@@ -24,7 +25,6 @@ const UserDataTableRowCells = [
   "Role",
   "Email",
   "RFID",
-  "Devices",
   "Created At",
   "Updated At",
   "Actions",
@@ -39,7 +39,7 @@ export const UserDataTable = () => {
     isSuccess,
   } = useQuery({
     queryKey: ["users-data"],
-    queryFn: () => fetch("/api/users").then((res) => res.json()),
+    queryFn: UserManagementDataFetch,
     refetchOnWindowFocus: false,
     gcTime: 10 * 60 * 1000,
     staleTime: 10 * 60 * 1000,
@@ -81,7 +81,7 @@ export const UserDataTable = () => {
               </TableCell>
             </TableRow>
           ) : (
-            data &&
+            data && !isFetching &&
             data?.map((user, i) => (
               <TableRow
                 key={user.id}
@@ -106,11 +106,10 @@ export const UserDataTable = () => {
                 <TableCell>
                   <Link href={`/dashboard/rfid/${user.id}`}>
                     <Button variant={"ghost"} className="text-white">
-                      {user.rfids?.length || 0}
+                      {user._count.rfids || 0}
                     </Button>
                   </Link>
                 </TableCell>
-                <TableCell>{user.devices?.length || 0}</TableCell>
                 <TableCell>
                   {user.createdAt &&
                     new Date(user.createdAt).toLocaleDateString()}

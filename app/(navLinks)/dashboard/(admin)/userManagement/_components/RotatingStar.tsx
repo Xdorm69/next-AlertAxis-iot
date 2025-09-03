@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 const RotatingStar = () => {
   return (
     <motion.span
+    className=""
       animate={{ rotate: 360 }}
       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
     >

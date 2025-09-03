@@ -76,10 +76,13 @@ export async function GET(request: NextRequest) {
     const [data, count] = await prisma.$transaction([
       prisma.accessLog.findMany({
         where,
-        include: {
-          user: true,
-          device: true,
-          rfid: true,
+        select: {
+          id: true,
+          timestamp: true,
+          status: true,
+          user: {select: {name: true, email: true, role: true}},
+          device: {select: {name: true}},
+          rfid: {select: {tagId: true}},
         },
         orderBy: {
           timestamp: "desc",

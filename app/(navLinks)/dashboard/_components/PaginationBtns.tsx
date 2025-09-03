@@ -43,7 +43,7 @@ const PaginationBtns = ({
 
       <Button
         variant="outline"
-        disabled={isBusy || dataLength < divisor}
+        disabled={isBusy || page >= Math.floor(dataLength / divisor)}
         onClick={() => setPage(page + 1)}
         className="flex items-center gap-1"
       >

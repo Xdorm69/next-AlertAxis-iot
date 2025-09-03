@@ -1,83 +1,117 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
+  AlertDialogTrigger,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-
+import { Button } from "@/components/ui/button";
 
 export default function RoleChangeDialog({
   currentRole,
-  onConfirm,
+  clerkId,
 }: {
   currentRole: "USER" | "ADMIN";
-  onConfirm: (data: { role: "USER" | "ADMIN"; secret?: string }) => void;
+  clerkId: string;
 }) {
   const [open, setOpen] = useState(false);
   const [secret, setSecret] = useState("");
 
+  const queryClient = useQueryClient();
+
+  const changeUserRoleMutation = useMutation({
+    mutationKey: ["change-user-status", clerkId],
+    mutationFn: async ({
+      role,
+      secret,
+    }: {
+      role: "USER" | "ADMIN";
+      secret?: string;
+    }) => {
+      const res = await fetch(`/api/users/${clerkId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ role, secret }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to apply change");
+      }
+
+      return res.json();
+    },
+    onMutate: () => {
+      toast.loading("Applying change...", { id: "role-change" });
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: [clerkId, "user-data"] });
+      queryClient.invalidateQueries({ queryKey: ["users-data"] });
+      toast.success(data.message || "Change applied", { id: "role-change" });
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Failed to apply change", {
+        id: "role-change",
+      });
+    },
+    onSettled: () => {
+      setSecret("");
+      setOpen(false);
+    },
+  });
+
   const handleConfirm = () => {
     const newRole = currentRole === "USER" ? "ADMIN" : "USER";
-    onConfirm({
-      role: newRole,
-      secret: currentRole === "ADMIN" ? secret : undefined,
-    });
-    setSecret("");
-    setOpen(false);
+    changeUserRoleMutation.mutate({ role: newRole, secret });
   };
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button className="text-white">Change Role</Button>
+        <Button variant="outline">Change Role</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>
-            {currentRole === "USER"
-              ? "Promote User to Admin"
-              : "Admin Verification Required"}
-          </AlertDialogTitle>
+          <AlertDialogTitle>Change User Role</AlertDialogTitle>
           <AlertDialogDescription>
-            {currentRole === "USER" ? (
-              <>
-                ⚠️ <strong>Warning:</strong> This user will be promoted to{" "}
-                <span className="font-bold text-red-600">Admin</span>. Please
-                confirm if you want to continue.
-              </>
-            ) : (
-              <>
-                To confirm, please enter the secret passphrase for admin
-                changes.
-                <Input
-                  type="password"
-                  placeholder="Enter secret"
-                  className="mt-2"
-                  value={secret}
-                  onChange={(e) => setSecret(e.target.value)}
-                />
-              </>
-            )}
+            {currentRole === "USER"
+              ? "Do you want to promote this user to ADMIN?"
+              : "Demoting an ADMIN to USER requires the secret key."}
           </AlertDialogDescription>
         </AlertDialogHeader>
+
+        {currentRole === "ADMIN" && (
+          <Input
+            type="password"
+            placeholder="Enter secret key"
+            value={secret}
+            onChange={(e) => setSecret(e.target.value)}
+            className="my-4"
+          />
+        )}
+
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction
+          <AlertDialogAction asChild>
+            <Button
             className="text-white"
-            onClick={handleConfirm}
-            disabled={currentRole === "ADMIN" && !secret.trim()}
-          >
-            Confirm
+              onClick={handleConfirm}
+              disabled={changeUserRoleMutation.isPending}
+            >
+              {changeUserRoleMutation.isPending ? "Applying..." : "Confirm"}
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -16,28 +16,26 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { fetchDashboardData } from "../fetch/fetchData";
+import { fetchDashboardData } from "../_fetch/fetchData";
 import { AccessLogWithUser } from "@/app/api/dashboard/route";
-import { DownloadCSV } from "../fetch/DownloadCSV";
+import { DownloadCSV } from "../_fetch/DownloadCSV";
 import { DateRange } from "react-day-picker";
 import { SkeletonRow } from "./SkeletonRow";
 import { HoverCardForText } from "./HoverCardForText";
 import DashboardFilters from "./DashboardFilters";
 import PaginationBtns from "./PaginationBtns";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Button } from "@/components/ui/button";
 
-const DashBoardTableWrapper = ({
-  user,
-}: {
-  user: { role: string; name: string };
-}) => {
-  const queryClient = new QueryClient();
-  return (
-    <QueryClientProvider client={queryClient}>
-      <DashboardTable user={user} />
-      <ReactQueryDevtools initialIsOpen={false} />
-    </QueryClientProvider>
-  );
-};
+const DashboardCellData = [
+  "User",
+  "Email",
+  "Role",
+  "RFID",
+  "Device",
+  "Status",
+  "Timestamp",
+];
 
 const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
@@ -45,6 +43,10 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
   const [page, setPage] = useState<number>(1);
   const [date, setDate] = useState<DateRange | undefined>();
   const [search, setSearch] = useState<string>("");
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, date, roleFilter, statusFilter]);
 
   const {
     data: res,
@@ -102,30 +104,34 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
         <Table>
           <TableHeader className="bg-card">
             <TableRow>
-              <TableHead className="font-bold font-mono">User</TableHead>
-              <TableHead className="font-bold font-mono">Email</TableHead>
-              <TableHead className="font-bold font-mono">Role</TableHead>
-              <TableHead className="font-bold font-mono">RFID</TableHead>
-              <TableHead className="font-bold font-mono">Device</TableHead>
-              <TableHead className="font-bold font-mono">Status</TableHead>
-              <TableHead className="font-bold font-mono">Timestamp</TableHead>
+              {DashboardCellData.map((cell, idx) => (
+                <TableHead key={idx} className="font-bold font-mono">
+                  {cell}
+                </TableHead>
+              ))}
             </TableRow>
           </TableHeader>
           <TableBody>
             {(isLoading || isFetching) &&
               Array.from({ length: 10 }).map((_, idx) => (
-                <SkeletonRow key={idx} />
+                <SkeletonRow key={idx} length={DashboardCellData.length} />
               ))}
             {isError && (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell
+                  colSpan={DashboardCellData.length}
+                  className="h-24 text-center"
+                >
                   Error...
                 </TableCell>
               </TableRow>
             )}
             {isSuccess && !isFetching && !data?.length ? (
               <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+                <TableCell
+                  colSpan={DashboardCellData.length}
+                  className="h-24 text-center"
+                >
                   No logs found.
                 </TableCell>
               </TableRow>
@@ -161,7 +167,21 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {new Date(log.timestamp).toLocaleString()}
+                    <HoverCard>
+                      <HoverCardTrigger>
+                        <Button variant={"ghost"}>
+                          {new Date(log.timestamp).toLocaleDateString("en-US", {
+                            month: "short", // "Sep"
+                            day: "numeric", // 2
+                            year: "numeric", // 2025
+                          })}
+                        </Button>
+                      </HoverCardTrigger>
+
+                      <HoverCardContent className="w-fit">
+                        {new Date(log.timestamp).toLocaleString()}
+                      </HoverCardContent>
+                    </HoverCard>
                   </TableCell>
                 </TableRow>
               ))
@@ -181,4 +201,4 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
   );
 };
 
-export default DashBoardTableWrapper;
+export default DashboardTable;

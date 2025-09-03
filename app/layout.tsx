@@ -44,6 +44,7 @@ export default function RootLayout({
     >
       <html lang="en" suppressHydrationWarning>
         <body
+          suppressHydrationWarning
           className={`${inter.variable} ${jetBrainsMono.variable} antialiased font-sans`}
         >
           <ThemeProvider

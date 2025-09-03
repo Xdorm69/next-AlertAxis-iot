@@ -1,18 +1,17 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { Device, RFID } from "@prisma/client";
-import {  NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export type UsersDataSchema = {
   id: string;
-  email: string;
-  clerkId: string;
   username: string;
-  rfids: RFID[];
-  devices: Device[];
   role: "ADMIN" | "USER";
+  email: string;
+  _count: {rfids: number};
   createdAt: Date;
   updatedAt: Date;
+  clerkId: string;
 };
 
 export async function GET(request: NextRequest) {
@@ -29,21 +28,22 @@ export async function GET(request: NextRequest) {
     if (dbUser.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const users = await prisma.user.findMany({
+    const usersFetched = await prisma.user.findMany({
       select: {
         id: true,
         clerkId: true,
         email: true,
         username: true,
-        rfids: true,
-        devices: true,
         role: true,
         createdAt: true,
         updatedAt: true,
+        _count: {
+          select: { rfids: true },
+        },
       },
     });
 
-    return NextResponse.json({ users, currentClerkUserId: id });
+    return NextResponse.json({ users: usersFetched, currentClerkUserId: id });
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
