@@ -132,7 +132,7 @@ export default function Preloader() {
         </div>
 
         {/* COUNTER */}
-        <div className="absolute right-1/2 translate-x-1/2 lg:right-5 lg:translate-x-0 bottom-5 z-30">
+        <div className="absolute right-1/2 translate-x-1/2 lg:right-5 lg:translate-x-0 bottom-20 lg:bottom-5 z-30">
           <div className="overflow-hidden rounded-xl">
             <div
               ref={maskRef}
