@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Toaster } from "sonner";
 import { CheckCircle, XCircle, Info, AlertTriangle } from "lucide-react";
+import Preloader from "@/components/PagePreloader";
 
 export const metadata: Metadata = {
   title: "AlertAxis",
@@ -55,6 +56,7 @@ export default function RootLayout({
           >
             <main className="bg-background">
               <Navbar />
+              <Preloader/>
               {children}
               <Footer />
               <Toaster

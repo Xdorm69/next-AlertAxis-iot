@@ -6,12 +6,13 @@ import SubscribePage from "@/components/Pages/SubscribePage";
 import TestimonialMarquee from "@/components/Pages/TestimonialsPage";
 import React from "react";
 import AnimatedBg from "@/components/AnimatedBg";
+import Preloader from "@/components/PagePreloader";
 
 const page = () => {
   return (
     <>
       <AnimatedBg />
-      <div className="z-10">
+      <div className="z-10 overflow-x-hidden">
         <HeroPage />
         <ServicesPage />
         <HowItWorksFlow />
