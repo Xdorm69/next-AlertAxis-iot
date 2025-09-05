@@ -9,36 +9,16 @@ const AnimatedNavLink = ({ word }: { word: string }) => {
   const [hovered, setHovered] = useState(false);
   const tl = useRef<gsap.core.Timeline | null>(null);
 
-  useEffect(() => {
-    const containerElement = container.current;
-
-    if (containerElement) {
-      // Define the event handler functions outside to reuse them
-      const handleMouseEnter = () => {
-        setHovered(true);
-      };
-
-      const handleMouseLeave = () => {
-        setHovered(false);
-      };
-
-      containerElement.addEventListener("mouseenter", handleMouseEnter);
-      containerElement.addEventListener("mouseleave", handleMouseLeave);
-
-      // The cleanup function returns the functions to remove the listeners
-      return () => {
-        containerElement.removeEventListener("mouseenter", handleMouseEnter);
-        containerElement.removeEventListener("mouseleave", handleMouseLeave);
-      };
-    }
-  }, []);
-
   useGSAP(() => {
     if (!container.current) return;
 
     // Select the two sets of letters
-    const navTextTop = container.current.querySelectorAll(".nav-text-top .nav-letters");
-    const navTextBottom = container.current.querySelectorAll(".nav-text-bottom .nav-letters");
+    const navTextTop = container.current.querySelectorAll(
+      ".nav-text-top .nav-letters"
+    );
+    const navTextBottom = container.current.querySelectorAll(
+      ".nav-text-bottom .nav-letters"
+    );
 
     // Set the initial state for the bottom text to be hidden below
     gsap.set(navTextBottom, {
@@ -80,7 +60,12 @@ const AnimatedNavLink = ({ word }: { word: string }) => {
     }
   }, [hovered]);
   return (
-    <div ref={container} className="flex overflow-hidden relative">
+    <div
+      ref={container}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex overflow-hidden relative"
+    >
       {/* The top word that will animate out */}
       <div className="flex absolute nav-text-top">
         {word.split("").map((letter, idx) => (

@@ -56,7 +56,6 @@ export default function RootLayout({
           >
             <main className="bg-background">
               <Navbar />
-              <Preloader/>
               {children}
               <Footer />
               <Toaster

@@ -8,6 +8,9 @@ import {
 } from "@/components/ui/table";
 import { SkeletonRow } from "@/app/(navLinks)/dashboard/_components/SkeletonRow";
 import { Device } from "@prisma/client";
+import { fetchRfidDetailsWithUserId } from "../_fetch/fetchRfidDetails";
+import { useQuery } from "@tanstack/react-query";
+import { Badge } from "@/components/ui/badge";
 
 type RfidActivityLogsTable = RfidInfoTableProps;
 
@@ -18,15 +21,21 @@ const ActivityLogsCellData = [
   "Location",
   "Status",
   "InstalledAt",
-  "Registered By",
-];
+]
 
 export const ActivityLogsTable = ({
-  isLoading,
-  isFetching,
-  data,
-  isError,
-}: RfidActivityLogsTable) => {
+  userId,
+}: {
+  userId: string;
+}) => {
+  const { data, isFetching, isLoading, isError } = useQuery({
+    queryKey: ["rfid-activity-data", userId],
+    queryFn: () => fetchRfidDetailsWithUserId(userId),
+    refetchOnWindowFocus: false,
+    gcTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+  });
+
   return (
     <>
       <h1 className="text-2xl md:text-2xl lg:text-4xl font-bold text-primary mt-8">
@@ -73,13 +82,22 @@ export const ActivityLogsTable = ({
                       <TableCell>{device.serialNumber}</TableCell>
                       <TableCell>{device.name || "NA"}</TableCell>
                       <TableCell>{device.location || "NA"}</TableCell>
-                      <TableCell>{device.status}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            device.status === "ACTIVE"
+                              ? "secondary"
+                              : "destructive"
+                          }
+                        >
+                          {device.status}
+                        </Badge>
+                      </TableCell>
                       <TableCell>
                         {device.installedAt
                           ? new Date(device.installedAt).toLocaleDateString()
                           : "NA"}
                       </TableCell>
-                      <TableCell>{device.registeredById || "NA"}</TableCell>
                     </TableRow>
                   ))
                 )}

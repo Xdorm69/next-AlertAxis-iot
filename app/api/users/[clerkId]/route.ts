@@ -160,3 +160,34 @@ function parseUserSessionInfo(sessions: any[]) {
 
   return { loggedIn, lastLoggedInAt };
 }
+
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ clerkId: string }> }
+) {
+  const user = await auth();
+  const id = user?.userId;
+  if (!id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  try {
+    const dbUser = await prisma.user.findUnique({ where: { clerkId: id } });
+    if (!dbUser)
+      return NextResponse.json({ error: "User not found" }, { status: 400 });
+    if (dbUser.role !== "ADMIN")
+      return NextResponse.json({ error: "Unauthorized" }, { status: 400 });
+
+    const {clerkId: userId} = await context.params;
+    
+    const res = await prisma.user.findUnique({where: {id: userId}});
+
+    return NextResponse.json(res, {status: 200});
+
+    
+  } catch (error) {
+    console.log("Error from /api/users/[id]: PATCH", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

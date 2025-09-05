@@ -7,57 +7,34 @@ import { ActivityLogsTable } from "./_components/ActivityLogsTable";
 import { AccessResultsTrendGraph } from "./_components/AccessResultTrendGraph";
 import React from "react";
 
+
 const page = ({ params }: { params: Promise<{ userId: string }> }) => {
   const { userId } = React.use(params);
-
-  const { data, isFetching, isLoading, isError, isSuccess } = useQuery({
-    queryKey: ["rfid", userId],
-    queryFn: () => fetchRfidWithUserId(userId),
-    refetchOnWindowFocus: false,
-    gcTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
-  });
 
   return (
     <section className="my-20">
       <div className="container mx-auto py-4 px-4 xl:w-7xl h-full">
         <div>
           <UserInfoTable
-            isError={isError}
-            isFetching={isFetching}
-            isLoading={isLoading}
-            isSuccess={isSuccess}
-            data={data?.userData}
+            userId={userId}
           />
         </div>
 
         <div>
           <RfidInfoTable
-            isError={isError}
-            isFetching={isFetching}
-            isLoading={isLoading}
-            isSuccess={isSuccess}
-            data={data?.rfidData}
+            userId={userId}
           />
         </div>
 
         <div>
           <ActivityLogsTable
-            isError={isError}
-            isFetching={isFetching}
-            isLoading={isLoading}
-            isSuccess={isSuccess}
-            data={data?.rfidData}
+            userId={userId}
           />
         </div>
 
         <div>
           <AccessResultsTrendGraph
-            isError={isError}
-            isFetching={isFetching}
-            isLoading={isLoading}
-            isSuccess={isSuccess}
-            data={data?.charts}
+            userId={userId}
           />
         </div>
       </div>

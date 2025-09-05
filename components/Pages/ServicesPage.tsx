@@ -15,37 +15,36 @@ import { CardData, ServiceCardProps } from "@/constants/services";
 
 gsap.registerPlugin(ScrollTrigger);
 
-
 const ServicesPage = () => {
   const container = useRef<HTMLDivElement>(null);
-useGSAP(() => {
-  if (!container.current) return;
+  useGSAP(() => {
+    if (!container.current) return;
 
-  const mobile = window.innerHeight > window.innerWidth;
+    const mobile = window.innerHeight > window.innerWidth;
 
-  gsap.fromTo(
-    container.current.querySelectorAll(".service-card"),
-    {
-      ...(mobile ? { x: 40 } : { y: 40 }),
-      filter: "blur(5px)",
-      opacity: 0,
-    },
-    {
-      ...(mobile ? { x: 0 } : { y: 0 }),
-      filter: "blur(0px)",
-      opacity: 1,
-      stagger: 0.5,
-      duration: 0.5,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: container.current,
-        start: "top 80%",
-        toggleActions: "play none none none",
-        once: true,
+    gsap.fromTo(
+      container.current.querySelectorAll(".service-card"),
+      {
+        ...(mobile ? { x: 40 } : { y: 40 }),
+
+        opacity: 0,
       },
-    }
-  );
-}, []);
+      {
+        ...(mobile ? { x: 0 } : { y: 0 }),
+
+        opacity: 1,
+        stagger: 0.5,
+        duration: 0.5,
+        ease: "power2.out",
+        scrollTrigger: {
+          trigger: container.current,
+          start: "top 80%",
+          toggleActions: "play none none none",
+          once: true,
+        },
+      }
+    );
+  }, []);
   return (
     <section className="my-20">
       <div className="container mx-auto py-4 px-4 xl:w-7xl overflow-hidden">

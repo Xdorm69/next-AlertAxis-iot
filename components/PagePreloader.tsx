@@ -1,15 +1,18 @@
 "use client";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
+import { SplitText } from "gsap/all";
+import { ReactNode, useEffect, useRef, useState } from "react";
 
 export default function Preloader() {
   const [loading, setLoading] = useState(true);
   const [demoVals, setDemoVals] = useState<number[]>([]);
-
   const containerRef = useRef<HTMLDivElement>(null);
   const counterRef = useRef<HTMLDivElement>(null);
   const maskRef = useRef<HTMLDivElement>(null);
+
+  //textPlugin from gsap
+  gsap.registerPlugin(SplitText);
 
   // Generate values only once
   const generateDemoVals = (): number[] => {
@@ -44,15 +47,21 @@ export default function Preloader() {
     const mask = maskRef.current;
     const distance = `-${el.clientHeight - mask.clientHeight}px`;
 
+    new SplitText(".hero-text", {
+      type: "chars",
+      charsClass: "hero-letter",
+    });
+
     // ✅ SETUP
     gsap.set(mask, { clipPath: "polygon(0 0, 0 0, 0 100%, 0% 100%)" });
+    gsap.set(".hero-text", { x: "-100%" });
     gsap.set(".hero-letter", { y: "100%" });
     gsap.set(container, {
       clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)",
     });
     gsap.set(el, { y: `${mask.clientHeight}px` });
-    gsap.set(".hero-text", { x: "-100%" });
     gsap.set(".strip", { width: 0, x: "-120px" });
+    gsap.set(".zoom", { scale: 1.3 });
 
     // ✅ Infinite strip animations
     gsap.utils.toArray<HTMLElement>(".strip h1").forEach((el) => {
@@ -107,12 +116,8 @@ export default function Preloader() {
         {/* HERO TEXT */}
         <div className="absolute hidden lg:block z-30 top-40 left-5">
           <div className="overflow-hidden">
-            <div className="hero-text text-[12rem] bg-card shadow-2xl px-8 rounded-xl flex font-bold tracking-tighter">
-              {"ALERTAXIS".split("").map((i, id) => (
-                <span key={id} className="hero-letter">
-                  {i}
-                </span>
-              ))}
+            <div className="hero-text text-[12rem] bg-card shadow-2xl px-8 rounded-xl font-bold tracking-tighter">
+              ALERTAXIS
             </div>
           </div>
         </div>
@@ -143,7 +148,9 @@ export default function Preloader() {
                 className="flex flex-col w-fit text-center font-bold px-10"
               >
                 {demoVals.map((i) => (
-                  <span key={i}>{isSingleDigitNumber(i) ? "0" + i : i}</span>
+                  <span className="text-shadow-glow" key={i}>
+                    {isSingleDigitNumber(i) ? "0" + i : i}
+                  </span>
                 ))}
               </div>
             </div>

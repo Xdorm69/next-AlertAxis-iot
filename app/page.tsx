@@ -13,6 +13,7 @@ const page = () => {
     <>
       <AnimatedBg />
       <div className="z-10 overflow-x-hidden">
+        {/* <Preloader /> till dev */}
         <HeroPage />
         <ServicesPage />
         <HowItWorksFlow />

@@ -69,19 +69,26 @@ export const UserDataTable = () => {
           )}
           {isError && (
             <TableRow>
-              <TableCell colSpan={UserDataTableRowCells.length} className="text-center py-4 text-red-500">
+              <TableCell
+                colSpan={UserDataTableRowCells.length}
+                className="text-center py-4 text-red-500"
+              >
                 Error fetching users
               </TableCell>
             </TableRow>
           )}
           {isSuccess && !data?.length ? (
             <TableRow>
-              <TableCell colSpan={UserDataTableRowCells.length} className="h-24 text-center">
+              <TableCell
+                colSpan={UserDataTableRowCells.length}
+                className="h-24 text-center"
+              >
                 No users found.
               </TableCell>
             </TableRow>
           ) : (
-            data && !isFetching &&
+            data &&
+            !isFetching &&
             data?.map((user, i) => (
               <TableRow
                 key={user.id}

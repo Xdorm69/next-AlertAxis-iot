@@ -10,23 +10,18 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { fetchRfidChartWithUserId } from "../_fetch/fetchRfidChart";
 
+export const AccessResultsTrendGraph = ({userId}: {userId: string}) => {
+  const { data, isLoading, isFetching, isError } = useQuery({
+    queryKey: ["rfid-chart", userId],
+    queryFn: () => fetchRfidChartWithUserId(userId),
+    refetchOnWindowFocus: false,
+    gcTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+  });
 
-type AccessResultsTrendGraphProps = {
-  isLoading: boolean;
-  isFetching: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-  data: { histogram: { date: string; GRANTED: number; DENIED: number }[] };
-};
-
-export const AccessResultsTrendGraph = ({
-  isLoading,
-  isFetching,
-  isSuccess,
-  data,
-  isError,
-}: AccessResultsTrendGraphProps) => {
   const chartData = data?.histogram;
 
   return (

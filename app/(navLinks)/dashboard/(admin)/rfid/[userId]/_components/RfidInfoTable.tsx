@@ -12,6 +12,9 @@ import {
 import { SkeletonRow } from "@/app/(navLinks)/dashboard/_components/SkeletonRow";
 import { Button } from "@/components/ui/button";
 import PaginationBtns from "@/app/(navLinks)/dashboard/_components/PaginationBtns";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { fetchRfidWithUserId } from "../_fetch/fetchRfidWithUserId";
 
 export type RfidInfoTableDataProps = RFID & {
   accessLogs: AccessLog[];
@@ -40,13 +43,16 @@ const RfidCellData = [
   "Actions",
 ];
 
-export const RfidInfoTable = ({
-  isLoading,
-  isFetching,
-  data,
-  isError,
-}: RfidInfoTableProps) => {
-  const [page, setPage] = useState<number>(1);
+export const RfidInfoTable = ({userId}: {userId: string}) => {
+  const { data: res, isLoading, isFetching, isError } = useQuery({
+    queryKey: ["rfid-data", userId],
+    queryFn: () => fetchRfidWithUserId(userId),
+    refetchOnWindowFocus: false,
+    gcTime: 10 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const data = res?.rfids;
 
   return (
     <>
@@ -86,7 +92,14 @@ export const RfidInfoTable = ({
                   </TableCell>
                 </TableRow>
               )}
-              {data &&
+              {!isFetching && !data && (
+                <TableRow>
+                  <TableCell colSpan={RfidCellData.length} className="text-center py-4">
+                    No rfid data found
+                  </TableCell>
+                </TableRow>
+              )}
+              {!isFetching && data &&
                 data.map((rfid: RfidInfoTableDataProps) => (
                   <TableRow key={rfid.id}>
                     {/* TAG ID  */}
@@ -124,30 +137,62 @@ export const RfidInfoTable = ({
                     </TableCell>
 
                     <TableCell>
-                      <Button
-                        className="text-white"
-                        size="sm"
-                        variant="default"
-                      >
-                        Edit
-                      </Button>
+                      <ToggleStatusButton userId={userId} rfidId={rfid.id} status={rfid.active} />
                     </TableCell>
                   </TableRow>
                 ))}
             </TableBody>
           </Table>
-          <div className="mt-4">
-            <PaginationBtns
-              dataLength={data?.length || 0}
-              isFetching={isFetching}
-              isLoading={isLoading}
-              setPage={setPage}
-              page={page}
-              divisor={6}
-            />
-          </div>
         </div>
       </div>
     </>
+  );
+};
+
+const ToggleStatusButton = ({
+  userId,
+  rfidId,
+  status,
+}: {
+  userId: string;
+  rfidId: string;
+  status: boolean;
+}) => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationKey: ["rfid", rfidId, "toggle-status"],
+    mutationFn: async () => {
+      const res = await fetch(`/api/rfid/${rfidId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ active: !status }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw data;
+      return data;
+    },
+    onMutate: () => {
+      toast.loading("Toggling rfid status", { id: `toggle-${rfidId}` });
+    },
+    onError: (data: { error: string }) => {
+      toast.error(data.error || "Error while toggling rfid status", {
+        id: `toggle-${rfidId}`,
+      });
+    },
+    onSuccess: (data: { message: string }) => {
+      queryClient.invalidateQueries({ queryKey: ["rfid-data", userId] });
+      toast.success(data.message || "Rfid status toggled successfully", {
+        id: `toggle-${rfidId}`,
+      });
+    },
+  });
+
+  return (
+    <Button onClick={() => mutation.mutate()} className="text-white">
+      Toggle
+    </Button>
   );
 };
