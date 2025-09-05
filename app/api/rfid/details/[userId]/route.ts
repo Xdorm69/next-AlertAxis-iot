@@ -12,7 +12,7 @@ async function getUser() {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  context : { params: Promise<{ userId: string }> }
 ) {
   const dbUser = await getUser();
   if (!dbUser)
@@ -20,8 +20,11 @@ export async function GET(
   if (dbUser.role !== "ADMIN")
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
+  const params = await context.params;
+  const userId = params.userId;
+
   const rfids = await prisma.rFID.findMany({
-    where: { userId: params.userId },
+    where: { userId },
     include: {
       accessLogs: {
         include: { device: true },
