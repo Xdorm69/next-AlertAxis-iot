@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  context : { params: Promise<{ userId: string }> }
 ) {
   const clerkUser = await auth();
   const id = clerkUser.userId;
@@ -20,9 +20,10 @@ export async function GET(
   const daysParam = searchParams.get("days");
   const days = daysParam ? Math.min(Number(daysParam), 30) : 10;
   // max 30 days for safety, default 10
-
+  const params = await context.params;
+  const userId = params.userId;
   const rfids = await prisma.rFID.findMany({
-    where: { userId: params.userId },
+    where: { userId },
     include: {
       accessLogs: {
         orderBy: { timestamp: "desc" },
