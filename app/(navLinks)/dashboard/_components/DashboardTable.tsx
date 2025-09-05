@@ -11,11 +11,8 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import {
-  QueryClient,
-  QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { fetchDashboardData } from "../_fetch/fetchData";
 import { AccessLogWithUser } from "@/app/api/dashboard/route";
 import { DownloadCSV } from "../_fetch/DownloadCSV";

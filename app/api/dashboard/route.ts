@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
         orderBy: {
           timestamp: "desc",
         },
-        skip: page === 1 ? 0 : page * 10,
+        skip: (page - 1) * 10,
         take: 10,
       }),
       prisma.accessLog.count({ where }),

@@ -19,11 +19,19 @@ const PaginationBtns = ({
   dataLength,
   divisor = 10, // default divisor
 }: PaginationBtnsProps) => {
-  const totalPages = Math.max(1, Math.floor(dataLength / divisor));
+  const totalPages = Math.max(1, Math.ceil(dataLength / divisor));
   const isBusy = isLoading || isFetching;
 
   return (
     <div className="flex justify-end items-center gap-4 w-full">
+      <Button
+        variant="outline"
+        disabled={page <= 1 || isBusy}
+        onClick={() => setPage(page - 1)}
+        className="flex items-center gap-1"
+      >
+        <ChevronLeft /> Previous
+      </Button>
       {isBusy ? (
         <div className="h-9 w-20 bg-gray-700 rounded animate-pulse" />
       ) : (
@@ -34,16 +42,7 @@ const PaginationBtns = ({
 
       <Button
         variant="outline"
-        disabled={page <= 1 || isBusy}
-        onClick={() => setPage(page - 1)}
-        className="flex items-center gap-1"
-      >
-        <ChevronLeft /> Previous
-      </Button>
-
-      <Button
-        variant="outline"
-        disabled={isBusy || page >= Math.floor(dataLength / divisor)}
+        disabled={isBusy || page >= totalPages || !dataLength}
         onClick={() => setPage(page + 1)}
         className="flex items-center gap-1"
       >

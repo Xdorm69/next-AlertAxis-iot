@@ -43,8 +43,13 @@ const RfidCellData = [
   "Actions",
 ];
 
-export const RfidInfoTable = ({userId}: {userId: string}) => {
-  const { data: res, isLoading, isFetching, isError } = useQuery({
+export const RfidInfoTable = ({ userId }: { userId: string }) => {
+  const {
+    data: res,
+    isLoading,
+    isFetching,
+    isError,
+  } = useQuery({
     queryKey: ["rfid-data", userId],
     queryFn: () => fetchRfidWithUserId(userId),
     refetchOnWindowFocus: false,
@@ -94,12 +99,16 @@ export const RfidInfoTable = ({userId}: {userId: string}) => {
               )}
               {!isFetching && !data && (
                 <TableRow>
-                  <TableCell colSpan={RfidCellData.length} className="text-center py-4">
+                  <TableCell
+                    colSpan={RfidCellData.length}
+                    className="text-center py-4"
+                  >
                     No rfid data found
                   </TableCell>
                 </TableRow>
               )}
-              {!isFetching && data &&
+              {!isFetching &&
+                data &&
                 data.map((rfid: RfidInfoTableDataProps) => (
                   <TableRow key={rfid.id}>
                     {/* TAG ID  */}
@@ -137,7 +146,11 @@ export const RfidInfoTable = ({userId}: {userId: string}) => {
                     </TableCell>
 
                     <TableCell>
-                      <ToggleStatusButton userId={userId} rfidId={rfid.id} status={rfid.active} />
+                      <ToggleStatusButton
+                        userId={userId}
+                        rfidId={rfid.id}
+                        status={rfid.active}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}
@@ -149,14 +162,16 @@ export const RfidInfoTable = ({userId}: {userId: string}) => {
   );
 };
 
-const ToggleStatusButton = ({
+export const ToggleStatusButton = ({
   userId,
   rfidId,
   status,
+  icon,
 }: {
   userId: string;
   rfidId: string;
   status: boolean;
+  icon?: React.ReactNode;
 }) => {
   const queryClient = useQueryClient();
 
@@ -184,6 +199,7 @@ const ToggleStatusButton = ({
     },
     onSuccess: (data: { message: string }) => {
       queryClient.invalidateQueries({ queryKey: ["rfid-data", userId] });
+      queryClient.invalidateQueries({ queryKey: ["rfid-data-all"] });
       toast.success(data.message || "Rfid status toggled successfully", {
         id: `toggle-${rfidId}`,
       });
@@ -191,8 +207,12 @@ const ToggleStatusButton = ({
   });
 
   return (
-    <Button onClick={() => mutation.mutate()} className="text-white">
-      Toggle
+    <Button
+      onClick={() => mutation.mutate()}
+      variant={"outline"}
+      className="text-foreground"
+    >
+      {icon ? icon : "Toggle"}
     </Button>
   );
 };
