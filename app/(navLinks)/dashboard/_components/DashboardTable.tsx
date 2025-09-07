@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { defaultQueryOptions } from "./Rfid/fetch/RfidDataTableFetchWrapper";
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
+
 
 const DashboardCellData = [
   "User",

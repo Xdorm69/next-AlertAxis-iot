@@ -1,7 +1,6 @@
 "use client";
 
 import { AccessLog, Device, RFID } from "@prisma/client";
-import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -14,8 +13,9 @@ import { Button } from "@/components/ui/button";
 import PaginationBtns from "@/app/(navLinks)/dashboard/_components/PaginationBtns";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { fetchRfidWithUserId } from "../_fetch/fetchRfidWithUserId";
-import { id } from "date-fns/locale";
+import { SwitchCamera } from "lucide-react";
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
+import { apiFetch } from "@/lib/api";
 
 export type RfidInfoTableDataProps = RFID & {
   accessLogs: AccessLog[];
@@ -34,7 +34,7 @@ export type RfidInfoTableProps = {
   isError: boolean;
 };
 
-const RfidCellData = [
+const RfidCellData: string[] = [
   "Tag Id",
   "Status",
   "Created At",
@@ -44,21 +44,52 @@ const RfidCellData = [
   "Actions",
 ];
 
-export const RfidInfoTable = ({ userId }: { userId: string }) => {
+export const RfidInfoTable = ({
+  userId,
+  isUser,
+}: {
+  userId: string;
+  isUser?: boolean;
+}) => {
   const {
     data: res,
     isLoading,
     isFetching,
     isError,
-  } = useQuery({
+  } = useQuery<{rfids: RfidInfoTableDataProps[]}>({
     queryKey: ["rfid-data", userId],
-    queryFn: () => fetchRfidWithUserId(userId),
-    refetchOnWindowFocus: false,
-    gcTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
+    queryFn: () => apiFetch(`/api/rfid/${userId}`),
+    ...defaultQueryOptions,
   });
 
   const data = res?.rfids;
+
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["change-rfid-status-user"],
+    mutationFn: async ({ tagId, requestType }: { tagId: string; requestType: string }) => {
+      const res = await fetch(`/api/rfid/add-rfid-user`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          tagId,
+          requestType,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw data;
+      return data;
+    },
+    onMutate: () => {
+      toast.loading("Toggling Status...", { id: "toggle" });
+    },
+    onSuccess: () => {
+      toast.success("Status changed successfully", { id: "toggle" });
+    },
+    onError: (data: { error: string }) => {
+      toast.error(data.error || "Failed to change status", { id: "toggle" });
+    },
+  });
 
   return (
     <>
@@ -146,13 +177,30 @@ export const RfidInfoTable = ({ userId }: { userId: string }) => {
                       {rfid.lastAccessDevice?.name || "N/A"}
                     </TableCell>
 
-                    <TableCell>
-                      <ToggleStatusButton
-                        userId={userId}
-                        rfidId={rfid.id}
-                        status={rfid.active}
-                      />
-                    </TableCell>
+                    {!isUser ? (
+                      <TableCell>
+                        <ToggleStatusButton
+                          userId={userId}
+                          rfidId={rfid.id}
+                          status={rfid.active}
+                        />
+                      </TableCell>
+                    ) : (
+                      <TableCell>
+                        <Button
+                        className="text-white"
+                        disabled={isPending}
+                          onClick={() =>
+                            mutate({
+                              tagId: rfid.tagId,
+                              requestType: !rfid.active ? "ACTIVATE" : "DEACTIVATE",
+                            })
+                          }
+                        >
+                          Request <SwitchCamera />{" "}
+                        </Button>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
             </TableBody>
@@ -173,7 +221,6 @@ export const ToggleStatusButton = ({
   rfidId?: string;
   status: boolean;
   icon?: React.ReactNode;
-
 }) => {
   const queryClient = useQueryClient();
 

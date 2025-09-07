@@ -1,5 +1,6 @@
-import { getAdmin } from "@/app/api/devices/route";
+
 import { prisma } from "@/lib/db";
+import { getUser} from "@/lib/helpers/authHelpers";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -7,8 +8,8 @@ export async function GET(
   req: NextRequest,
   context : { params: Promise<{ userId: string }> }
 ) {
-  const admin = await getAdmin();
-  if(!admin.success) return NextResponse.json({success: false, error: admin.error}, { status: 401 });
+  const user = await getUser();
+  if(!user.success) return NextResponse.json({success: false, error: user.error}, { status: 401 });
 
   const params = await context.params;
   const userId = params.userId;
@@ -19,7 +20,7 @@ export async function GET(
       accessLogs: {
         include: { device: true },
         orderBy: { timestamp: "desc" },
-        take: 10, // only latest logs
+        take: 10,
       },
     },
   });
@@ -32,7 +33,7 @@ export async function GET(
         ...new Map(
           rfid.accessLogs.map((log) => [log.deviceId, log.device])
         ).values(),
-      ].slice(0, 3), // at most 3 devices
+      ].slice(0, 3),
     };
   });
 

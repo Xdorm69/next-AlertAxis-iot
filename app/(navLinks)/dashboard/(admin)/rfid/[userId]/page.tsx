@@ -1,6 +1,5 @@
 "use client";
-import { useQuery } from "@tanstack/react-query";
-import { fetchRfidWithUserId } from "./_fetch/fetchRfidWithUserId";
+
 import { UserInfoTable } from "./_components/UserInfoTable";
 import { RfidInfoTable } from "./_components/RfidInfoTable";
 import { ActivityLogsTable } from "./_components/ActivityLogsTable";

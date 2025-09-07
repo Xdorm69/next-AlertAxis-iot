@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { getAdmin } from "../../devices/route";
+import { getAdmin, getUser } from "@/lib/helpers/authHelpers";
+
+
 
 
 
@@ -10,9 +12,8 @@ export async function GET(
   req: NextRequest,
   context: { params: Promise<{ userId: string }> }
 ) {
-  const admin = await getAdmin();
-  if (!admin.success)
-    return NextResponse.json({ success: false, error: admin.error }, { status: 401 });
+  const dbUser = await getUser();
+  if(!dbUser.success) return NextResponse.json({success: false, error: dbUser.error}, {status: 401});
 
   const params = await context.params;
   const userId = params.userId;

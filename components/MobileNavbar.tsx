@@ -5,8 +5,6 @@ import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 import gsap from "gsap";
 import Link from "next/link";
 import { useGSAP } from "@gsap/react";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { Button } from "./ui/button";
 import { navlinks } from "@/constants/nav";
 import { ClerkBtns } from "./ClerkBtns";
 import { ModeToggle } from "./ui/ModeToggle";

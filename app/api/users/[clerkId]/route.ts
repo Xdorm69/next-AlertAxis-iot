@@ -170,11 +170,6 @@ export async function PATCH(
   if (!id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   try {
-    const dbUser = await prisma.user.findUnique({ where: { clerkId: id } });
-    if (!dbUser)
-      return NextResponse.json({ error: "User not found" }, { status: 400 });
-    if (dbUser.role !== "ADMIN")
-      return NextResponse.json({ error: "Unauthorized" }, { status: 400 });
 
     const {clerkId: userId} = await context.params;
     

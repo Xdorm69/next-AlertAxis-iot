@@ -1,3 +1,4 @@
+"use client";
 import { RfidInfoTableDataProps, RfidInfoTableProps } from "./RfidInfoTable";
 import {
   Table,
@@ -11,6 +12,8 @@ import { Device } from "@prisma/client";
 import { fetchRfidDetailsWithUserId } from "../_fetch/fetchRfidDetails";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
+
 
 type RfidActivityLogsTable = RfidInfoTableProps;
 
@@ -31,9 +34,7 @@ export const ActivityLogsTable = ({
   const { data: res, isFetching, isLoading, isError } = useQuery({
     queryKey: ["rfid-activity-data", userId],
     queryFn: () => fetchRfidDetailsWithUserId(userId),
-    refetchOnWindowFocus: false,
-    gcTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
+    ...defaultQueryOptions
   });
 
   const data = res?.data;
@@ -76,6 +77,17 @@ export const ActivityLogsTable = ({
                   </TableCell>
                 </TableRow>
               )}
+              {!data && !isFetching && (
+                <TableRow>
+                  <TableCell
+                    colSpan={ActivityLogsCellData.length}
+                    className="text-center py-4 text-red-500"
+                  >
+                    No activity logs found
+                  </TableCell>
+                </TableRow>
+              )}
+              
               {data &&
                 data.map((rfid: RfidInfoTableDataProps) =>
                   rfid.recentDevicesUsed.map((device: Device) => (

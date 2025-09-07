@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { defaultQueryOptions } from "../../../_components/Rfid/fetch/RfidDataTableFetchWrapper";
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
 import { toast } from "sonner";
 import {
   Table,
@@ -33,8 +33,6 @@ import { SkeletonRow } from "../../../_components/SkeletonRow";
 import { Device } from "@prisma/client";
 import { HoverCardForText } from "../../../_components/HoverCardForText";
 import { Badge } from "@/components/ui/badge";
-import { ToggleStatusButton } from "../[userId]/_components/RfidInfoTable";
-import { SwitchCamera } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +46,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FormatDate } from "../../../_components/Rfid/RfidDataTable";
 
 const devicesTableCell = [
   "Id",
@@ -134,7 +133,11 @@ const DevicesTable = () => {
                   />
                 </TableCell>
                 <TableCell>
-                  {new Date(device.installedAt).toLocaleDateString()}
+                  <HoverCardForText
+                    data={[{ date: new Date(device.installedAt).toLocaleString() }]}
+                    tag="Created At"
+                    displayKey={FormatDate(new Date(device.installedAt))}
+                  />
                 </TableCell>
                 <TableCell>
                   <ToggleDeviceStatusButton

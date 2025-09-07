@@ -1,28 +1,8 @@
 import { prisma } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { getAdmin } from "@/lib/helpers/authHelpers";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function getAdmin() {
-  try {
-    const userFromClerk = await auth();
-    const clerkUserId = userFromClerk.userId;
-    if (!clerkUserId) return { success: false, error: "Unauthorized" };
 
-    const dbUser = await prisma.user.findUnique({
-      where: { clerkId: clerkUserId },
-    });
-    if (!dbUser)
-      return { success: false, error: "No user found in database" };
-
-    if (dbUser.role !== "ADMIN")
-      return { success: false, error: "Unauthorized", data: dbUser };
-
-    return { success: true, message: "Admin found", data: dbUser };
-  } catch (error) {
-    console.log("Error from /api/devices: GET", error);
-    return { success: false, error: "Internal Server Error" }
-  }
-}
 
 export async function GET(request: NextRequest) {
   const admin = await getAdmin();

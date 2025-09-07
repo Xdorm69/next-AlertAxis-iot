@@ -1,1 +1,1 @@
-export const navlinks: string[] = ["dashboard", "about", "docs"];
+export const navlinks: string[] = ["dashboard", "rfid", "about", "docs"];

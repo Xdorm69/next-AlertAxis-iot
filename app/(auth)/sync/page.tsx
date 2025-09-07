@@ -12,7 +12,7 @@ const SyncPage = async () => {
   })
   if (!dbUser) return redirect("/onboard");
 
-  redirect("/dashboard");
+  redirect("/");
 };
 
 export default SyncPage;

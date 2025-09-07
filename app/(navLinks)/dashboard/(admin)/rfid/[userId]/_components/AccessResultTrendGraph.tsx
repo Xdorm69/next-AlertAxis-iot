@@ -12,14 +12,13 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { fetchRfidChartWithUserId } from "../_fetch/fetchRfidChart";
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
 
 export const AccessResultsTrendGraph = ({userId}: {userId: string}) => {
   const { data, isLoading, isFetching, isError } = useQuery({
     queryKey: ["rfid-chart", userId],
     queryFn: () => fetchRfidChartWithUserId(userId),
-    refetchOnWindowFocus: false,
-    gcTime: 10 * 60 * 1000,
-    staleTime: 10 * 60 * 1000,
+    ...defaultQueryOptions
   });
 
   const chartData = data?.histogram;

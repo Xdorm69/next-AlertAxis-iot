@@ -1,14 +1,15 @@
-import { getAdmin } from "@/app/api/devices/route";
+
 import { prisma } from "@/lib/db";
+import { getUser } from "@/lib/helpers/authHelpers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
   context : { params: Promise<{ userId: string }> }
 ) {
-  const admin = await getAdmin();
-  if (!admin.success)
-    return NextResponse.json({ success: false, error: admin.error }, { status: 401 });
+  const user = await getUser();
+  if (!user.success)
+    return NextResponse.json({ success: false, error: user.error }, { status: 401 });
 
   const searchParams = req.nextUrl.searchParams;
   const daysParam = searchParams.get("days");

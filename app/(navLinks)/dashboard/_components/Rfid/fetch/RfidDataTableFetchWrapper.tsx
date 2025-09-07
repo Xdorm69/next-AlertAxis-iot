@@ -5,12 +5,7 @@ import RfidDataTable from "../RfidDataTable";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllRfidData } from "./fetchAllRfidData";
 import { useRouter } from "next/navigation";
-
-export const defaultQueryOptions = {
-  gcTime: 10 * 60 * 1000,
-  refetchOnWindowFocus: false,
-  staleTime: 10 * 60 * 1000,
-};
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
 
 const RfidDataTableFetchWrapper = () => {
   const { data, isLoading, isFetching, isSuccess, isError } = useQuery({

@@ -1,26 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdmin } from "../../devices/route";
-import { success } from "zod";
 import { prisma } from "@/lib/db";
+import { getAdmin } from "@/lib/helpers/authHelpers";
 
 
 export async function POST(request: NextRequest) {
   const admin = await getAdmin();
   if (!admin.success) return NextResponse.json({success: false, error: admin.error}, {status: 401});
   try {
-    const { tagId, status, userId } = await request.json();
+    const { tagId } = await request.json();
 
-    if (!tagId || !status || !userId)
+    if (!tagId)
       return NextResponse.json(
-        { success: false, error: "tagId, status, userId is required" },
+        { success: false, error: "tagId is required" },
         { status: 400 }
       );
 
     const add = await prisma.rFID.create({
         data: {
             tagId,
-            active: Boolean(status),
-            userId
+            active: true,
+            userId: admin.data?.id as string,
         }
     })
 

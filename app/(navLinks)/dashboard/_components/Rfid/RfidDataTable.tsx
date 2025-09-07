@@ -48,12 +48,20 @@ const rfidCellData = [
   "RFID Id",
   "RFID TagId",
   "User",
-  "Serial",
   "Status",
+  "Logs",
   "Created At",
   "Toggle",
   "Delete",
 ];
+
+export const FormatDate = (date: Date) => {
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
 
 const RfidDataTable = ({
   data,
@@ -141,7 +149,11 @@ const RfidDataTable = ({
                 </TableCell>
                 <TableCell>{rfid._count.accessLogs || 0}</TableCell>
                 <TableCell>
-                  {new Date(rfid.createdAt).toLocaleString()}
+                  <HoverCardForText
+                    data={[{ date: new Date(rfid.createdAt).toLocaleString() }]}
+                    tag="Created At"
+                    displayKey={FormatDate(new Date(rfid.createdAt))}
+                  />
                 </TableCell>
                 <TableCell>
                   <ToggleStatusButton

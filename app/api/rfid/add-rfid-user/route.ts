@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getAuth } from "@clerk/nextjs/server";
 import { RequestTypes } from "@prisma/client";
+import { getUser } from "@/lib/helpers/authHelpers";
+import {
+  handleCreate,
+  handleActivate,
+  handleDeactivate,
+  handlePort,
+} from "@/lib/helpers/rfid/rfidClient";
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId: clerkId } = getAuth(request);
-    if (!clerkId) {
+    const dbUser = await getUser();
+    if (!dbUser.success) {
       return NextResponse.json(
-        { success: false, error: "Unauthorized" },
+        { success: false, error: dbUser.error },
         { status: 401 }
       );
     }
@@ -22,130 +28,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 🔹 Find the user
-    const user = await prisma.user.findUnique({ where: { clerkId } });
-    if (!user) {
+    if (!dbUser.data) {
       return NextResponse.json(
-        { success: false, error: "User not found" },
-        { status: 404 }
+        { success: false, error: "No data found in dbUser" },
+        { status: 400 }
       );
     }
+    const user = dbUser.data;
 
-    let pendingRequestData: any = {
-      requestType,
-      user: { connect: { id: user.id } },
-    };
-
-    // 🔹 Preload RFID if provided (for rules)
-    let existingRfid = null;
+    let result;
 
     switch (requestType) {
-      case RequestTypes.CREATE: {
-        if (!tagId)
-          return NextResponse.json(
-            { error: "tagId required" },
-            { status: 400 }
-          );
-
-        existingRfid = await prisma.rFID.findUnique({ where: { tagId } });
-        if (existingRfid) {
-          return NextResponse.json(
-            { error: "RFID already exists" },
-            { status: 400 }
-          );
-        }
-
-        pendingRequestData.tempTagId = tagId;
+      case RequestTypes.CREATE:
+        result = await handleCreate(tagId, user.id);
         break;
-      }
-
-      case RequestTypes.ACTIVATE: {
-        if (!tagId)
-          return NextResponse.json(
-            { error: "tagId required" },
-            { status: 400 }
-          );
-
-        existingRfid = await prisma.rFID.findUnique({ where: { tagId } });
-        if (!existingRfid)
-          return NextResponse.json(
-            { error: "RFID not found" },
-            { status: 404 }
-          );
-        if (existingRfid.active)
-          return NextResponse.json(
-            { error: "Already active" },
-            { status: 400 }
-          );
-        if (existingRfid.userId !== user.id)
-          return NextResponse.json({ error: "Not your RFID" }, { status: 403 });
-
-        // ✅ FIXED: use relation field
-        pendingRequestData.rfid = { connect: { id: existingRfid.id } };
+      case RequestTypes.ACTIVATE:
+        result = await handleActivate(tagId, user.id);
         break;
-      }
-
-      case RequestTypes.DEACTIVATE: {
-        if (!rfidId)
-          return NextResponse.json(
-            { error: "rfidId required" },
-            { status: 400 }
-          );
-
-        existingRfid = await prisma.rFID.findUnique({ where: { id: rfidId } });
-        if (!existingRfid)
-          return NextResponse.json(
-            { error: "RFID not found" },
-            { status: 404 }
-          );
-        if (!existingRfid.active)
-          return NextResponse.json(
-            { error: "Already deactivated" },
-            { status: 400 }
-          );
-        if (existingRfid.userId !== user.id)
-          return NextResponse.json({ error: "Not your RFID" }, { status: 403 });
-
-        pendingRequestData.rfid = { connect: { id: existingRfid.id } };
+      case RequestTypes.DEACTIVATE:
+        result = await handleDeactivate(rfidId, user.id);
         break;
-      }
-
-      case RequestTypes.PORT: {
-        if (!rfidId || !targetRfidId) {
-          return NextResponse.json(
-            { error: "rfidId and targetRfidId required" },
-            { status: 400 }
-          );
-        }
-
-        const source = await prisma.rFID.findUnique({ where: { id: rfidId } });
-        if (!source)
-          return NextResponse.json(
-            { error: "Source not found" },
-            { status: 404 }
-          );
-        if (source.userId !== user.id)
-          return NextResponse.json({ error: "Not your RFID" }, { status: 403 });
-
-        const target = await prisma.rFID.findUnique({
-          where: { id: targetRfidId },
-        });
-        if (!target)
-          return NextResponse.json(
-            { error: "Target not found" },
-            { status: 404 }
-          );
-        if (target.active)
-          return NextResponse.json(
-            { error: "Target already active" },
-            { status: 400 }
-          );
-
-        pendingRequestData.rfid = { connect: { id: rfidId } };
-        pendingRequestData.targetRfid = { connect: { id: targetRfidId } };
+      case RequestTypes.PORT:
+        result = await handlePort(rfidId, targetRfidId, user.id);
         break;
-      }
-
       default:
         return NextResponse.json(
           { success: false, error: "Invalid requestType" },
@@ -153,9 +58,15 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    // 🔹 Create pending request only
+    if ("error" in result) {
+      return NextResponse.json(
+        { success: false, error: result.error },
+        { status: result.status }
+      );
+    }
+
     const pending = await prisma.pendingRfidRequests.create({
-      data: pendingRequestData,
+      data: result.data,
     });
 
     return NextResponse.json(

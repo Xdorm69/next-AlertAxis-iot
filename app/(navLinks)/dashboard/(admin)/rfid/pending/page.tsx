@@ -19,7 +19,8 @@ import { RequestTypes } from "@prisma/client";
 import { Check, CheckCheckIcon, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SkeletonRow } from "../../../_components/SkeletonRow";
-import { defaultQueryOptions } from "../../../_components/Rfid/fetch/RfidDataTableFetchWrapper";
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
+
 
 type PendingDataRequest = {
   id: string;

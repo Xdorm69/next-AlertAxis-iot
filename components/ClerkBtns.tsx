@@ -18,7 +18,7 @@ export function ClerkBtns() {
     />
   ) : (
     <SignInButton>
-      <Button className="text-white font-semibold w-full">Log in</Button>
+      <Button className="text-white font-semibold w-fit">Log in</Button>
     </SignInButton>
   );
 }
