@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PATCH(
   request: NextRequest,
-  context: { params: { requestId: string } }
+  context: { params: Promise<{ requestId: string }> }
 ) {
   const admin = await getAdmin();
   if (!admin.success)
@@ -23,7 +23,7 @@ export async function PATCH(
   }
 
   try {
-    const { requestId } = context.params;
+    const { requestId } =await context.params;
 
     const pendingRequest = await prisma.pendingRfidRequests.findUnique({
       where: { id: requestId },
