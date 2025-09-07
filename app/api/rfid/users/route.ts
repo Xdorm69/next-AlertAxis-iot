@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdmin } from "../../devices/route";
 import { prisma } from "@/lib/db";
+import { getAdmin } from "@/lib/helpers/authHelpers";
 
 export async function GET(request: NextRequest) {
   const admin = await getAdmin();
