@@ -4,6 +4,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   Dialog,
@@ -35,8 +36,10 @@ import {
   CommandInput,
   CommandList,
   CommandItem,
+  CommandEmpty,
 } from "@/components/ui/command";
-import { cn } from "@/lib/utils"; // shadcn helper (merge classes)
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // ✅ Validation Schema
 const formSchema = z.object({
@@ -47,15 +50,11 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-type AddRfidDialogProps = {
-  users: { id: string; name: string }[]; // Preloaded user list
-  onSubmit: (data: FormValues) => Promise<void>; // API call handler
-};
-
-export function AddRfidDialog({ users, onSubmit }: AddRfidDialogProps) {
+export function AddRfidDialog() {
   const [open, setOpen] = React.useState(false);
   const [userPopoverOpen, setUserPopoverOpen] = React.useState(false);
   const [selectedUser, setSelectedUser] = React.useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const {
     register,
@@ -69,8 +68,58 @@ export function AddRfidDialog({ users, onSubmit }: AddRfidDialogProps) {
     },
   });
 
+  // 🔹 Debounced query
+  const [debouncedQuery, setDebouncedQuery] = React.useState("");
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  const queryClient = useQueryClient();
+
+  // 🔹 Fetch users with useQuery
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["users", debouncedQuery],
+    queryFn: async () => {
+      const res = await fetch(`/api/rfid/users?query=${debouncedQuery}`);
+      if (!res.ok) throw new Error("Failed to fetch users");
+      const json = await res.json();
+      return json.data as { id: string; username: string }[];
+    },
+  });
+
+  const addRfidMutation = useMutation({
+    mutationKey: ["add-rfid"],
+    mutationFn: async (data: FormValues) => {
+      const res = await fetch("/api/rfid/add-rfid", {
+        method: "POST",
+        body: JSON.stringify({
+          tagId: data.tagId,
+          userId: data.userId,
+          status: data.active,
+        }),
+      });
+      const resData = await res.json();
+      if (!resData.success) throw resData;
+      return resData;
+    },
+    onMutate: () => {
+      toast.loading("Adding rfid...", { id: "add-rfid" });
+    },
+    onSuccess: () => {
+      toast.success("Rfid added successfully", { id: "add-rfid" });
+      queryClient.invalidateQueries({ queryKey: ["rfid-data-all"] });
+    },
+    onError: (data: { error: string }) => {
+      toast.error(data.error, { id: "add-rfid" });
+    },
+  });
+
   const submitHandler = async (data: FormValues) => {
-    await onSubmit(data);
+    addRfidMutation.mutate(data);
     setOpen(false);
     setSelectedUser(null);
   };
@@ -78,7 +127,9 @@ export function AddRfidDialog({ users, onSubmit }: AddRfidDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="border-1 border-emerald-200 bg-emerald-600 hover:bg-emerald-700 text-white">Add RFID</Button>
+        <Button className="border-1 border-emerald-200 bg-emerald-600 hover:bg-emerald-700 text-white">
+          Add RFID
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-md">
@@ -122,7 +173,7 @@ export function AddRfidDialog({ users, onSubmit }: AddRfidDialogProps) {
                   )}
                 >
                   {selectedUser
-                    ? users.find((u) => u.id === selectedUser)?.name
+                    ? users.find((u) => u.id === selectedUser)?.username
                     : "Select user..."}
                 </Button>
               </PopoverTrigger>
@@ -131,19 +182,28 @@ export function AddRfidDialog({ users, onSubmit }: AddRfidDialogProps) {
                   <CommandInput
                     className="w-full"
                     placeholder="Search user..."
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
                   />
                   <CommandList className="w-full">
+                    {isLoading && <CommandEmpty>Loading...</CommandEmpty>}
+                    {!isLoading && users.length === 0 && (
+                      <CommandEmpty>No users found.</CommandEmpty>
+                    )}
                     {users.map((user) => (
                       <CommandItem
                         key={user.id}
-                        className="w-full"
+                        value={user.username} // ✅ pass username as value
                         onSelect={() => {
-                          setValue("userId", user.id);
+                          setValue("userId", user.id, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          }); // ✅ update form
                           setSelectedUser(user.id);
                           setUserPopoverOpen(false);
                         }}
                       >
-                        {user.name}
+                        {user.username}
                       </CommandItem>
                     ))}
                   </CommandList>
@@ -176,9 +236,13 @@ export function AddRfidDialog({ users, onSubmit }: AddRfidDialogProps) {
 
           <DialogFooter>
             <DialogClose asChild>
-                <Button variant={'outline'}>Close</Button>
+              <Button variant={"outline"}>Close</Button>
             </DialogClose>
-            <Button type="submit" className="text-white" disabled={isSubmitting}>
+            <Button
+              type="submit"
+              className="text-white"
+              disabled={isSubmitting}
+            >
               {isSubmitting ? "Adding..." : "Add RFID"}
             </Button>
           </DialogFooter>

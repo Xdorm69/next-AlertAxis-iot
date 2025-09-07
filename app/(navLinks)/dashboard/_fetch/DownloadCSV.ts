@@ -25,3 +25,4 @@ export const DownloadCSV = (data: AccessLogWithUser[]) => {
   link.click();
   document.body.removeChild(link);
 };
+

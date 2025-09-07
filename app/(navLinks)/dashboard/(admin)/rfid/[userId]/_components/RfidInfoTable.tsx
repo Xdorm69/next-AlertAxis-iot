@@ -15,6 +15,7 @@ import PaginationBtns from "@/app/(navLinks)/dashboard/_components/PaginationBtn
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { fetchRfidWithUserId } from "../_fetch/fetchRfidWithUserId";
+import { id } from "date-fns/locale";
 
 export type RfidInfoTableDataProps = RFID & {
   accessLogs: AccessLog[];
@@ -118,11 +119,11 @@ export const RfidInfoTable = ({ userId }: { userId: string }) => {
                     <TableCell>
                       {rfid.active ? (
                         <Button className="border-emerald-300 border-1 text-white hover:bg-emerald-700/60 bg-emerald-700/40">
-                          Active
+                          ACTIVE
                         </Button>
                       ) : (
                         <Button variant={"outline"} className="text-white">
-                          Inactive
+                          INACTIVE
                         </Button>
                       )}
                     </TableCell>
@@ -169,9 +170,10 @@ export const ToggleStatusButton = ({
   icon,
 }: {
   userId: string;
-  rfidId: string;
+  rfidId?: string;
   status: boolean;
   icon?: React.ReactNode;
+
 }) => {
   const queryClient = useQueryClient();
 
@@ -190,18 +192,19 @@ export const ToggleStatusButton = ({
       return data;
     },
     onMutate: () => {
-      toast.loading("Toggling rfid status", { id: `toggle-${rfidId}` });
+      toast.loading("Toggling rfid status", { id: "rfid-status" });
     },
     onError: (data: { error: string }) => {
       toast.error(data.error || "Error while toggling rfid status", {
-        id: `toggle-${rfidId}`,
+        id: "rfid-status",
       });
     },
     onSuccess: (data: { message: string }) => {
       queryClient.invalidateQueries({ queryKey: ["rfid-data", userId] });
       queryClient.invalidateQueries({ queryKey: ["rfid-data-all"] });
-      toast.success(data.message || "Rfid status toggled successfully", {
-        id: `toggle-${rfidId}`,
+
+      toast.success(data.message || "RFID status toggled successfully", {
+        id: "rfid-status",
       });
     },
   });

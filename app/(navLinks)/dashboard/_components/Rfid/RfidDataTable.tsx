@@ -7,6 +7,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { SkeletonRow } from "../SkeletonRow";
 import { Badge } from "@/components/ui/badge";
 import PaginationBtns from "../PaginationBtns";
@@ -14,6 +25,11 @@ import { useState } from "react";
 import { SwitchCamera, ToggleRightIcon, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ToggleStatusButton } from "../../(admin)/rfid/[userId]/_components/RfidInfoTable";
+import { AddRfidDialog } from "../../(admin)/rfid/_components/AddRfidDialog";
+import AddRfidFetchWrapper from "../../(admin)/rfid/_components/Fetch/AddRfidFetchWrapper";
+import { RFID } from "@prisma/client";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export type RfidLogWithDevice = {
   id: string;
@@ -100,7 +116,7 @@ const RfidDataTable = ({
                     className="text-white"
                     variant={rfid.active ? "default" : "destructive"}
                   >
-                    {rfid.active ? "Active" : "Inactive"}
+                    {rfid.active ? "ACTIVE" : "INACTIVE"}
                   </Badge>
                 </TableCell>
                 <TableCell>{rfid._count.accessLogs || 0}</TableCell>
@@ -116,9 +132,7 @@ const RfidDataTable = ({
                   />
                 </TableCell>
                 <TableCell>
-                  <Button variant="destructive">
-                    <Trash />
-                  </Button>
+                  <DeleteRfidAlertDialog rfidId={rfid.id} />
                 </TableCell>
               </TableRow>
             ))}
@@ -136,7 +150,8 @@ const RfidDataTable = ({
           )}
         </TableBody>
       </Table>
-      <div className="mt-4">
+      <div className="mt-4 flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
+        <AddRfidDialog />
         <PaginationBtns
           dataLength={totalDataLength}
           page={page}
@@ -150,3 +165,57 @@ const RfidDataTable = ({
 };
 
 export default RfidDataTable;
+
+const DeleteRfidAlertDialog = ({ rfidId }: { rfidId: string }) => {
+  const queryClient = useQueryClient();
+  const { mutate, isPending } = useMutation({
+    mutationKey: ["delete-rfid", rfidId],
+    mutationFn: async () => {
+      const res = await fetch(`/api/rfid/delete-rfid/${rfidId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) throw data;
+      return data;
+    },
+    onMutate: () => {
+      toast.loading("Deleting rfid...", { id: "delete-rfid" });
+    },
+    onSuccess: () => {
+      toast.success("Rfid deleted successfully", { id: "delete-rfid" });
+      queryClient.invalidateQueries({ queryKey: ["rfid-data-all"] });
+    },
+    onError: (data: {error: string}) => {
+      toast.error(data.error || "Error deleting rfid", { id: "delete-rfid" });
+    }
+  });
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive">
+          <Trash />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirm Delete</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this RFID log? This action cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={() => {
+              mutate();
+            }}
+            disabled={isPending}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};

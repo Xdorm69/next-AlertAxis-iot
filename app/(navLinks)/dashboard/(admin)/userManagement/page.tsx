@@ -1,4 +1,4 @@
-import React from "react";
+
 import { UserDataTable } from "./_components/UserDataTable";
 import RotatingStar from "./_components/RotatingStar";
 

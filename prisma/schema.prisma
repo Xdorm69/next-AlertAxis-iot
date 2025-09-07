@@ -55,8 +55,8 @@ model RFID {
 model Device {
   id           String       @id @default(cuid())
   serialNumber String       @unique
-  name         String?
-  location     String?
+  name         String
+  location     String
   status       DeviceStatus @default(ACTIVE) // ACTIVE, INACTIVE, MAINTENANCE
   installedAt  DateTime     @default(now())
 

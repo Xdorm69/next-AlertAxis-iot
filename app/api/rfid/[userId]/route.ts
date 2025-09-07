@@ -1,25 +1,18 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
+import { getAdmin } from "../../devices/route";
 
-async function getUser() {
-  const clerkUser = await auth();
-  const id = clerkUser.userId;
-  if (!id) return null;
 
-  return prisma.user.findUnique({ where: { clerkId: id } });
-}
 
 // GET → raw RFID record
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ userId: string }> }
 ) {
-  const dbUser = await getUser();
-  if (!dbUser)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (dbUser.role !== "ADMIN")
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const admin = await getAdmin();
+  if (!admin.success)
+    return NextResponse.json({ success: false, error: admin.error }, { status: 401 });
 
   const params = await context.params;
   const userId = params.userId;
@@ -39,7 +32,7 @@ export async function GET(
   });
 
   if (!user)
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
 
   // enrich each RFID
   const enrichedRfids = user.rfids.map((rfid) => {
@@ -68,11 +61,9 @@ export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ userId: string }> }
 ) {
-  const dbUser = await getUser();
-  if (!dbUser)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (dbUser.role !== "ADMIN")
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const admin = await getAdmin();
+  if (!admin.success)
+    return NextResponse.json({ success: false, error: admin.error }, { status: 401 });
 
   const { active } = await req.json();
 
@@ -86,5 +77,5 @@ export async function PATCH(
     data: { active },
   });
 
-  return NextResponse.json({ message: "RFID updated", updated });
+  return NextResponse.json({ success: true, message: "RFID updated", updated });
 }

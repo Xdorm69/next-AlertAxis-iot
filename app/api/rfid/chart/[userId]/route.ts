@@ -1,20 +1,14 @@
+import { getAdmin } from "@/app/api/devices/route";
 import { prisma } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
   context : { params: Promise<{ userId: string }> }
 ) {
-  const clerkUser = await auth();
-  const id = clerkUser.userId;
-  if (!id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const dbUser = await prisma.user.findUnique({ where: { clerkId: id } });
-  if (!dbUser)
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  if (dbUser.role !== "ADMIN")
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const admin = await getAdmin();
+  if (!admin.success)
+    return NextResponse.json({ success: false, error: admin.error }, { status: 401 });
 
   const searchParams = req.nextUrl.searchParams;
   const daysParam = searchParams.get("days");
@@ -63,5 +57,5 @@ export async function GET(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
-  return NextResponse.json({ histogram: chartData });
+  return NextResponse.json({ success: true, histogram: chartData });
 }

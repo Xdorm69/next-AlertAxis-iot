@@ -1,53 +1,86 @@
 import { prisma } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
-import { Device, RFID } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
+import { getAdmin } from "../devices/route";
 
 export type UsersDataSchema = {
   id: string;
   username: string;
   role: "ADMIN" | "USER";
   email: string;
-  _count: {rfids: number};
+  _count: { rfids: number };
   createdAt: Date;
   updatedAt: Date;
   clerkId: string;
 };
 
 export async function GET(request: NextRequest) {
-  const user = await auth();
-  const id = user.userId;
-  if (!id) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-  try {
-    const dbUser = await prisma.user.findUnique({ where: { clerkId: id } });
-    if (!dbUser) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-    if (dbUser.role !== "ADMIN") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const usersFetched = await prisma.user.findMany({
-      select: {
-        id: true,
-        clerkId: true,
-        email: true,
-        username: true,
-        role: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
-          select: { rfids: true },
-        },
-      },
-    });
+  const admin = await getAdmin();
+  if (!admin.success)
+    return NextResponse.json(
+      { success: false, error: admin.error },
+      { status: 401 }
+    );
 
-    return NextResponse.json({ users: usersFetched, currentClerkUserId: id });
+  const searchParams = new URL(request.url).searchParams;
+
+  const roleFilter = searchParams.get("roleFilter") || "ALL" ; // ADMIN | USER | ALL
+  const page = Number(searchParams.get("page")) || 1;
+  const pageSize = Number(searchParams.get("pageSize")) || 10;
+  const dateFrom: string = searchParams.get("dateFrom") || "";
+  const dateTo: string = searchParams.get("dateTo") || "";
+  const search = searchParams.get("search") || "";
+
+  try {
+    const where: any = {
+      ...(roleFilter !== "ALL" && { role: roleFilter }),
+      ...(search && {
+        OR: [
+          { username: { contains: search, mode: "insensitive" } },
+          { email: { contains: search, mode: "insensitive" } },
+        ],
+      }),
+    };
+
+    if (
+      dateFrom &&
+      dateTo &&
+      !isNaN(Date.parse(dateFrom)) &&
+      !isNaN(Date.parse(dateTo))
+    ) {
+      where.createdAt = {
+        gte: new Date(dateFrom),
+        lte: new Date(dateTo),
+      };
+    }
+
+    const [usersFetched, totalCount] = await prisma.$transaction([
+      prisma.user.findMany({
+        where,
+        include: {
+          _count: {
+            select: { rfids: true },
+          },
+        },
+        orderBy: { createdAt: "desc" },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.user.count({ where }),
+    ]);
+
+    return NextResponse.json(
+      {
+        success: true,
+        users: usersFetched,
+        totalCount,
+        currentClerkUserId: admin.data?.clerkId,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error: "Failed to fetch user" },
+      { success: false, error: "Failed to fetch user" },
       { status: 500 }
     );
   }

@@ -28,13 +28,15 @@ export const ActivityLogsTable = ({
 }: {
   userId: string;
 }) => {
-  const { data, isFetching, isLoading, isError } = useQuery({
+  const { data: res, isFetching, isLoading, isError } = useQuery({
     queryKey: ["rfid-activity-data", userId],
     queryFn: () => fetchRfidDetailsWithUserId(userId),
     refetchOnWindowFocus: false,
     gcTime: 10 * 60 * 1000,
     staleTime: 10 * 60 * 1000,
   });
+
+  const data = res?.data;
 
   return (
     <>

@@ -14,10 +14,13 @@ import { SkeletonRow } from "../../../_components/SkeletonRow";
 import { Button } from "@/components/ui/button";
 import PaginationBtns from "../../../_components/PaginationBtns";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { UserActionsDialog } from "./UserActionDialog";
 import { UserManagementDataFetch } from "../_fetch/UserManagementDataFetch";
+import { DateRange } from "react-day-picker";
+import DashboardFilters from "../../../_components/DashboardFilters";
+import { DownloadCSV } from "../../../_fetch/DownloadCSV";
 
 const UserDataTableRowCells = [
   "Id",
@@ -37,20 +40,47 @@ export const UserDataTable = () => {
     isFetching,
     isError,
     isSuccess,
+    refetch,
   } = useQuery({
     queryKey: ["users-data"],
-    queryFn: UserManagementDataFetch,
+    queryFn: () => UserManagementDataFetch(search, roleFilter, date, page),
     refetchOnWindowFocus: false,
     gcTime: 10 * 60 * 1000,
     staleTime: 10 * 60 * 1000,
   });
 
-  const data: UsersDataSchema[] | null = res?.users;
-
+  //Filtering States
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [date, setDate] = useState<DateRange | undefined>();
   const [page, setPage] = useState<number>(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [roleFilter, date]);
+
+  useEffect(() => {
+    refetch();
+  }, [search, roleFilter, date, page]);
+
+  
+  const data: UsersDataSchema[] | null = res?.users;
 
   return (
     <div>
+      <div className="mb-4">
+        <DashboardFilters
+          search={search}
+          setSearch={setSearch}
+          roleFilter={roleFilter}
+          setRoleFilter={setRoleFilter}
+          date={date}
+          setDate={setDate}
+          user={{ role: "ADMIN" }}
+          data={data}
+          DownloadCSV={DownloadCSV}
+        />
+      </div>
       <Table className="border rounded-lg">
         <TableHeader>
           <TableRow className="bg-muted/50 text-sm font-semibold">
@@ -148,5 +178,3 @@ export const UserDataTable = () => {
     </div>
   );
 };
-
-

@@ -36,10 +36,12 @@ export default function DashboardFilters({
       {/* Desktop filters (lg and up) */}
       <div className="hidden lg:flex gap-4">
         <SearchDashboard search={search} setSearch={setSearch} />
-        <SelectStatusDashboard
-          setStatusFilter={setStatusFilter}
-          statusFilter={statusFilter}
-        />
+        {statusFilter && (
+          <SelectStatusDashboard
+            setStatusFilter={setStatusFilter}
+            statusFilter={statusFilter}
+          />
+        )}
         {user.role === "ADMIN" && (
           <SelectRoleDashboard
             setRoleFilter={setRoleFilter}
@@ -53,9 +55,12 @@ export default function DashboardFilters({
       <div className="lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <Button variant="outline" className="flex items-center font-semibold gap-2">
-              Filters 
-              <Filter className="text-muted-foreground"/>
+            <Button
+              variant="outline"
+              className="flex items-center font-semibold gap-2"
+            >
+              Filters
+              <Filter className="text-muted-foreground" />
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="space-y-4 px-4 md:px-8 pb-10">
