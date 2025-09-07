@@ -2,7 +2,8 @@
 import React from "react";
 import GlobalTable from "./GlobalTable";
 import { useQuery } from "@tanstack/react-query";
-import { defaultQueryOptions } from "@/app/(navLinks)/dashboard/_components/Rfid/fetch/RfidDataTableFetchWrapper";
+import { defaultQueryOptions } from "@/lib/helpers/queryOptions";
+
 
 const GlobalTableFetchWrapper = ({
   queryFn,

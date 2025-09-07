@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdmin } from "../route";
 import { prisma } from "@/lib/db";
+import { getAdmin } from "@/lib/helpers/authHelpers";
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ deviceId: string }> }) {
     const admin = await getAdmin();
