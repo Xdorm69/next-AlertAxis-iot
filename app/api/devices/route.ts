@@ -15,7 +15,7 @@ export async function getAdmin() {
       return { success: false, error: "No user found in database" };
 
     if (dbUser.role !== "ADMIN")
-      return { success: false, error: "Unauthorized" };
+      return { success: false, error: "Unauthorized", data: dbUser };
 
     return { success: true, message: "Admin found", data: dbUser };
   } catch (error) {

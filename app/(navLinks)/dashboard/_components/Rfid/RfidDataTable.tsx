@@ -30,12 +30,13 @@ import AddRfidFetchWrapper from "../../(admin)/rfid/_components/Fetch/AddRfidFet
 import { RFID } from "@prisma/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { HoverCardForText } from "../HoverCardForText";
 
 export type RfidLogWithDevice = {
   id: string;
   tagId: string;
   active: boolean;
-  user: { id: string; name: string; username?: string | null };
+  user: { id: string; name: string; username?: string | null; email: string };
   createdAt: string;
 
   _count: {
@@ -44,7 +45,8 @@ export type RfidLogWithDevice = {
 };
 
 const rfidCellData = [
-  "RFID Tag",
+  "RFID Id",
+  "RFID TagId",
   "User",
   "Serial",
   "Status",
@@ -109,8 +111,26 @@ const RfidDataTable = ({
             data &&
             data?.map((rfid) => (
               <TableRow key={rfid.id}>
-                <TableCell>{rfid.tagId}</TableCell>
-                <TableCell>{rfid.user.id}</TableCell>
+                <TableCell>
+                  <HoverCardForText data={rfid.id} tag="RFID id" />
+                </TableCell>
+                <TableCell>
+                  <HoverCardForText data={rfid.tagId} tag="RFID tagId" />
+                </TableCell>
+                <TableCell>
+                  <HoverCardForText
+                    data={[
+                      {
+                        id: rfid.user.id,
+                        name: rfid.user.name,
+                        email: rfid.user.email,
+                        username: rfid.user.username,
+                      },
+                    ]}
+                    tag="User"
+                    displayKey={rfid.user.id}
+                  />
+                </TableCell>
                 <TableCell>
                   <Badge
                     className="text-white"
@@ -185,9 +205,9 @@ const DeleteRfidAlertDialog = ({ rfidId }: { rfidId: string }) => {
       toast.success("Rfid deleted successfully", { id: "delete-rfid" });
       queryClient.invalidateQueries({ queryKey: ["rfid-data-all"] });
     },
-    onError: (data: {error: string}) => {
+    onError: (data: { error: string }) => {
       toast.error(data.error || "Error deleting rfid", { id: "delete-rfid" });
-    }
+    },
   });
   return (
     <AlertDialog>

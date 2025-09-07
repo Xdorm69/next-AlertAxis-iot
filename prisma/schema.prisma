@@ -24,32 +24,41 @@ enum DeviceStatus {
 }
 
 model User {
-  id           String    @id @default(cuid())
-  clerkId      String    @unique
-  email        String    @unique
-  name         String
-  username     String?   @unique
-  phone        String?
-  role         UserRoles @default(USER)
-  adminSince   DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id         String    @id @default(cuid())
+  clerkId    String    @unique
+  email      String    @unique
+  name       String
+  username   String?   @unique
+  phone      String?
+  role       UserRoles @default(USER)
+  adminSince DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   // Relations
-  rfids      RFID[]
-  accessLogs AccessLog[]
-  devices    Device[]    @relation("RegisteredDevices") // devices this user (if admin) has registered
+  rfids               RFID[]
+  accessLogs          AccessLog[]
+  devices             Device[]              @relation("RegisteredDevices") // devices this user (if admin) has registered
+  pendingRfidRequests PendingRfidRequests[]
+  approvedRequests PendingRfidRequests[] @relation("ApprovedRequests")
 }
 
 model RFID {
   id        String   @id @default(cuid())
   tagId     String   @unique // UID of RFID card
-  userId    String // multiple cards can point to one user
+  userId    String?
   active    Boolean  @default(false)
   createdAt DateTime @default(now())
 
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Relations
+  user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessLogs AccessLog[]
+
+  // One-to-one with PendingRfidRequests as "source" RFID
+  pendingRequest PendingRfidRequests? @relation("SourceRfid")
+
+  // One-to-one with PendingRfidRequests as "target" RFID (only for PORT requests)
+  targetRequest PendingRfidRequests? @relation("TargetRfid")
 }
 
 model Device {
@@ -77,4 +86,34 @@ model AccessLog {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   rfid   RFID   @relation(fields: [rfidId], references: [id], onDelete: Cascade)
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+}
+
+enum RequestTypes {
+  CREATE
+  ACTIVATE
+  DEACTIVATE
+  PORT
+}
+
+model PendingRfidRequests {
+  id              String       @id @default(uuid())
+  userId          String
+  requestType     RequestTypes
+  rfidId          String?       @unique
+  targetRfidId    String?      @unique
+  tempTagId       String?      @unique
+  approvedByAdmin String?      // foreign key
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // ✅ Relation to Admin User who approved
+  admin User? @relation("ApprovedRequests", fields: [approvedByAdmin], references: [id])
+
+  // Source RFID (the one being activated/deactivated/ported from)
+  rfid RFID? @relation("SourceRfid", fields: [rfidId], references: [id], onDelete: Cascade)
+
+  // Target RFID (the one being ported to, only for PORT)
+  targetRfid RFID? @relation("TargetRfid", fields: [targetRfidId], references: [id], onDelete: Cascade)
 }

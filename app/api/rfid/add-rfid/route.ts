@@ -3,14 +3,10 @@ import { getAdmin } from "../../devices/route";
 import { success } from "zod";
 import { prisma } from "@/lib/db";
 
+
 export async function POST(request: NextRequest) {
   const admin = await getAdmin();
-  if (!admin.success)
-    return NextResponse.json(
-      { success: false, error: admin.error },
-      { status: 401 }
-    );
-
+  if (!admin.success) return NextResponse.json({success: false, error: admin.error}, {status: 401});
   try {
     const { tagId, status, userId } = await request.json();
 

@@ -21,6 +21,7 @@ import { UserManagementDataFetch } from "../_fetch/UserManagementDataFetch";
 import { DateRange } from "react-day-picker";
 import DashboardFilters from "../../../_components/DashboardFilters";
 import { DownloadCSV } from "../../../_fetch/DownloadCSV";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const UserDataTableRowCells = [
   "Id",
@@ -34,6 +35,13 @@ const UserDataTableRowCells = [
 ];
 
 export const UserDataTable = () => {
+  //Filtering States
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("ALL");
+  const [date, setDate] = useState<DateRange | undefined>();
+  const [page, setPage] = useState<number>(1);
+
+  
   const {
     data: res,
     isLoading,
@@ -42,28 +50,42 @@ export const UserDataTable = () => {
     isSuccess,
     refetch,
   } = useQuery({
-    queryKey: ["users-data"],
+    queryKey: ["users-data", search, roleFilter, date, page],
     queryFn: () => UserManagementDataFetch(search, roleFilter, date, page),
     refetchOnWindowFocus: false,
     gcTime: 10 * 60 * 1000,
     staleTime: 10 * 60 * 1000,
   });
 
-  //Filtering States
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("ALL");
-  const [date, setDate] = useState<DateRange | undefined>();
-  const [page, setPage] = useState<number>(1);
-
   useEffect(() => {
     setPage(1);
   }, [roleFilter, date]);
 
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   useEffect(() => {
-    refetch();
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("search", search);
+    params.set("roleFilter", roleFilter);
+    params.set("page", String(page));
+
+    if (date?.from) {
+      params.set("dateFrom", date.from.toISOString());
+    } else {
+      params.delete("dateFrom");
+    }
+
+    if (date?.to) {
+      params.set("dateTo", date.to.toISOString());
+    } else {
+      params.delete("dateTo");
+    }
+
+    router.push(`?${params.toString()}`);
   }, [search, roleFilter, date, page]);
 
-  
   const data: UsersDataSchema[] | null = res?.users;
 
   return (

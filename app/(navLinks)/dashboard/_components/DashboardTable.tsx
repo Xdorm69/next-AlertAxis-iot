@@ -10,9 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  useQuery,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { fetchDashboardData } from "../_fetch/fetchData";
 import { AccessLogWithUser } from "@/app/api/dashboard/route";
 import { DownloadCSV } from "../_fetch/DownloadCSV";
@@ -21,8 +19,14 @@ import { SkeletonRow } from "./SkeletonRow";
 import { HoverCardForText } from "./HoverCardForText";
 import DashboardFilters from "./DashboardFilters";
 import PaginationBtns from "./PaginationBtns";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import { Button } from "@/components/ui/button";
+import { useRouter, useSearchParams } from "next/navigation";
+import { defaultQueryOptions } from "./Rfid/fetch/RfidDataTableFetchWrapper";
 
 const DashboardCellData = [
   "User",
@@ -51,6 +55,7 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
     isError,
     isSuccess,
     isFetching,
+    refetch,
   } = useQuery({
     queryKey: [
       "dashboard",
@@ -71,10 +76,35 @@ const DashboardTable = ({ user }: { user: { role: string; name: string } }) => {
         dateTo: date?.to?.toISOString() || "",
         search,
       }),
-    refetchOnWindowFocus: false,
-    staleTime: 10 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    ...defaultQueryOptions,
   });
+
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("search", search);
+    params.set("roleFilter", roleFilter);
+    params.set("page", String(page));
+    params.set("statusFilter", statusFilter);
+
+    if (date?.from) {
+      params.set("dateFrom", date.from.toISOString());
+    } else {
+      params.delete("dateFrom");
+    }
+
+    if (date?.to) {
+      params.set("dateTo", date.to.toISOString());
+    } else {
+      params.delete("dateTo");
+    }
+
+    router.push(`?${params.toString()}`);
+
+  }, [search, roleFilter, statusFilter, date, page]);
 
   const data = res?.APIData?.data;
   const count = res?.count;
